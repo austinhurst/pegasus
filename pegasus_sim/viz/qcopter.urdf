@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="qcopter"> -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://pegasus_sim/viz/qcopter.dae"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.570792653 0 0"/>
+    </visual>
+  </link>
+</robot>

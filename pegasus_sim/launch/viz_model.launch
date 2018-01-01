@@ -1,0 +1,4 @@
+<launch>
+  <param name="robot_description" textfile="$(find pegasus_sim)/viz/qcopter.urdf"  />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pegasus_sim)/viz/qcopter.rviz" required="true"/>
+</launch>
