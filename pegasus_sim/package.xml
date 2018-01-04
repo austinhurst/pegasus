@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>pegasus_sim</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>The pegasus_sim package</description>
   <maintainer email="austinhurst@msn.com">Austin Hurst</maintainer>
   <license>TODO</license>
@@ -10,10 +10,12 @@
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>tf</build_depend>
+  <build_depend>pegasus</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>tf</run_depend>
-  
+  <run_depend>pegasus</run_depend>
+
   <export>
   </export>
 </package>

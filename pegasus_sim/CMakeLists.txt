@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+  pegasus
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES pegasus_sim
-#  CATKIN_DEPENDS roscpp std_msgs tf
+   CATKIN_DEPENDS roscpp std_msgs tf pegasus
 #  DEPENDS system_lib
 )
 
@@ -133,7 +134,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(equations_of_motion src/equations_of_motion.cpp)
+add_executable(equations_of_motion
+  src/equations_of_motion_base.cpp
+  src/simple_dynamic_model.cpp
+  )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
