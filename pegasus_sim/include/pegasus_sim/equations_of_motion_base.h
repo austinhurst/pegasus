@@ -1,14 +1,14 @@
-#ifndef EQUATIONS_OF_MOTION_H
-#define EQUATIONS_OF_MOTION_H
+#ifndef EQUATIONS_OF_MOTION_BASE_H
+#define EQUATIONS_OF_MOTION_BASE_H
 
 #include <string>
 #include <stdlib.h>
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/LinearMath/Quaternion.h>
-#include <pegasus/MotorCommand4.h>
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
+#include <pegasus/motor_struct.h>
 
 namespace pegasus_sim
 {
@@ -16,7 +16,7 @@ class EquationsOfMotion
 {
 public:
   EquationsOfMotion();
-
+  ~EquationsOfMotion();
 private:
   //********************* NODE HANDLES *********************//
   ros::NodeHandle nh_;         // public node handle for publishing, subscribing
@@ -29,11 +29,14 @@ private:
 
   //******************** CLASS VARIABLES *******************//
   // TODO: Vehicle Description (things like motor mass, to be used by 'derivative')
+
   float alpha_;                // uncertainty level (0.1 is 10% uncertainty)
 
-
   // Truth Variables
+protected:
   pegasus::state_struct state_;
+
+private:
 
   // RK4 Variables
   pegasus::state_struct k1_;
@@ -43,16 +46,19 @@ private:
   ros::Time last_time_;
 
   // Message Variables
-  float m1_;
-  float m2_;
-  float m3_;
-  float m4_;
+protected:
+  pegasus::motor_struct *motors_;
 
+private:
   pegasus::VehicleState truth_msg_;
   geometry_msgs::TransformStamped odom_trans_;
 
   //***************** CALLBACKS AND TIMERS *****************//
-  void motorCommandCallback(const pegasus::MotorCommand4ConstPtr &msg);
+  void motorCommandCallback2(const pegasus::MotorCommand2ConstPtr &msg);
+  void motorCommandCallback3(const pegasus::MotorCommand3ConstPtr &msg);
+  void motorCommandCallback4(const pegasus::MotorCommand4ConstPtr &msg);
+  void motorCommandCallback6(const pegasus::MotorCommand6ConstPtr &msg);
+  void motorCommandCallback8(const pegasus::MotorCommand8ConstPtr &msg);
   void propogate(const ros::TimerEvent& event);
   ros::Timer propogate_timer_;
   void updateViz(const ros::WallTimerEvent& event);
@@ -66,4 +72,4 @@ protected:
 };// end class EquationsOfMotion
 } // end namespace pegasus_sim
 
-#endif // EQUATIONS_OF_MOTION_H
+#endif // EQUATIONS_OF_MOTION_BASE_H

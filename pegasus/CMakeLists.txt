@@ -50,8 +50,13 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
  FILES
+ MotorCommand2.msg
+ MotorCommand3.msg
  MotorCommand4.msg
+ MotorCommand6.msg
+ MotorCommand8.msg
  VehicleState.msg
+ RX8.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -106,7 +111,7 @@ generate_messages(
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES pegasus
-#  CATKIN_DEPENDS roscpp std_msgs tf
+   CATKIN_DEPENDS roscpp std_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -134,7 +139,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/pegasus_node.cpp)
+add_executable(controller
+  src/controller_base.cpp
+  src/pd.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,9 +155,9 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(controller
+   ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -175,7 +183,7 @@ include_directories(
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "state_struct.h"
+  FILES_MATCHING PATTERN "*_struct.h"
   PATTERN ".svn" EXCLUDE
 )
 

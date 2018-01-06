@@ -7,18 +7,20 @@ namespace pegasus_sim
 EquationsOfMotion::EquationsOfMotion() :
   nh_(ros::NodeHandle())
 {
+  //************** SUBSCRIBERS AND PUBLISHERS **************//
+  motor_command_subscriber_ = nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback, this);
+
+  truth_publisher_ = nh_.advertise<pegasus::VehicleState>("/pegasus_sim/truth",1);
+
   //********************** PARAMETERS **********************//
   // Simulation Parameters
   float propogate_rate, update_viz_rate;
-  int num_motors;
-  if (!(ros::param::get("sim/propogate_rate",propogate_rate)))
+  if (!(ros::param::get("propogate_rate",propogate_rate)))
     ROS_WARN("No param named 'propogate_rate'");
-  if (!(ros::param::get("/pegasus/ground_station/update_viz_rate",update_viz_rate)))
+  if (!(ros::param::get("update_viz_rate",update_viz_rate)))
     ROS_WARN("No param named 'update_viz_rate'");
-  if (!(ros::param::get("sim/alpha",alpha_)))
+  if (!(ros::param::get("alpha",alpha_)))
     ROS_WARN("No param named 'alpha");
-  if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors)))
-    ROS_WARN("No param named 'num_motors");
 
   // Vehicle Parameters (TODO: pull in the vehicle description parameters)
 
@@ -27,36 +29,7 @@ EquationsOfMotion::EquationsOfMotion() :
   state_.E = 0.0;
   state_.D = -3.0;
 
-  //************** SUBSCRIBERS AND PUBLISHERS **************//
-  if (num_motors == 2)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback2, this);
-  else if (num_motors == 3)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback3, this);
-  else if (num_motors == 4)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback4, this);
-  else if (num_motors == 6)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback6, this);
-  else if (num_motors == 8)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback8, this);
-  else
-    ROS_ERROR("PARAM 'num_motors' IS FAULTY. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
-
-  truth_publisher_ = nh_.advertise<pegasus::VehicleState>("/pegasus_sim/truth",1);
-
   //******************** CLASS VARIABLES *******************//
-  if (num_motors == 2)
-    motors_ = new pegasus::motor_struct_2;
-  else if (num_motors == 3)
-    motors_ = new pegasus::motor_struct_3;
-  else if (num_motors == 4)
-    motors_ = new pegasus::motor_struct_4;
-  else if (num_motors == 6)
-    motors_ = new pegasus::motor_struct_6;
-  else if (num_motors == 8)
-    motors_ = new pegasus::motor_struct_8;
-  else
-    ROS_ERROR("THE STRUCT 'motors_' WAS NOT INITIALIZED. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
-
   odom_trans_.header.frame_id = "odom";
   odom_trans_.child_frame_id = "base_link";
   srand(time(0));
@@ -69,12 +42,7 @@ EquationsOfMotion::EquationsOfMotion() :
   //********************** FUNCTIONS ***********************//
   //addUncertainty(&vehicle_parameter_); // TODO: Do this for each appropriate Vehicle Parameter
 
-}
-EquationsOfMotion::~EquationsOfMotion()
-{
-  delete motors_;
-}
-
+} // end constructor
 void EquationsOfMotion::propogate(const ros::TimerEvent&)
 {
   // Runge-Kutta 4th Order - Compute Truth
@@ -86,7 +54,12 @@ void EquationsOfMotion::propogate(const ros::TimerEvent&)
   k4_ = derivative(state_ + k3_*h      );
   state_ = state_ + (k1_ + k2_*2.0 + k3_*2.0 + k4_)*(h/6.0);
 
-  truth_publisher_.publish(state_.msg());
+  // Publish Truth TODO: finish all the states in truth
+  truth_msg_.N = state_.N;
+  truth_msg_.E = state_.E;
+  truth_msg_.D = state_.D;
+  truth_publisher_.publish(truth_msg_);
+
   last_time_ = new_time;
 }
 pegasus::state_struct EquationsOfMotion::derivative(pegasus::state_struct)
@@ -105,25 +78,12 @@ void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
   tf::quaternionTFToMsg(q,odom_trans_.transform.rotation);
   pose_broadcaster_.sendTransform(odom_trans_);
 }
-void EquationsOfMotion::motorCommandCallback2(const pegasus::MotorCommand2ConstPtr &msg)
+void EquationsOfMotion::motorCommandCallback(const pegasus::MotorCommand4ConstPtr &msg)
 {
-  motors_->msg2struct(msg);
-}
-void EquationsOfMotion::motorCommandCallback3(const pegasus::MotorCommand3ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void EquationsOfMotion::motorCommandCallback4(const pegasus::MotorCommand4ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void EquationsOfMotion::motorCommandCallback6(const pegasus::MotorCommand6ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void EquationsOfMotion::motorCommandCallback8(const pegasus::MotorCommand8ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
+  m1_ = msg->m1;
+  m2_ = msg->m2;
+  m3_ = msg->m3;
+  m4_ = msg->m4;
 }
 void EquationsOfMotion::addUncertainty(float* var)
 {
@@ -142,7 +102,7 @@ int main(int argc, char** argv)
 
   pegasus_sim::EquationsOfMotion *eom_obj;
   std::string model_type;
-  if (!(ros::param::get("sim/model_type",model_type)))
+  if (!(ros::param::get("model_type",model_type)))
     ROS_WARN("No param named 'model_type'");
   if (model_type == "simple")
     eom_obj = new pegasus_sim::SimpleDynamicModel;

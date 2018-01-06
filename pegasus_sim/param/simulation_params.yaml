@@ -1,9 +1,9 @@
-# Parameters for the pegasus_sim package
-propogate_rate: 200.0   # How often the dynamics are updated in Hz
-update_viz_rate: 20.0   # How often the tf is updated in Hz
+# Parameters for the simulation
+sim:
+  propogate_rate: 200.0   # How often the dynamics are updated in Hz
 
-alpha: 0.0              # Amount of uncertainty (0.1 -> 10% uncertainty)
-model_type: simple      # The type of dynamic model that is used
-                        # options include:
-                        #   simple - A simple dynamic model of a quadcopter
-                        # Add another model type as a child class of EquationsOfMotion
+  alpha: 0.0              # Amount of uncertainty (0.1 -> 10% uncertainty)
+  model_type: simple      # The type of dynamic model that is used
+                          # options include:
+                          #   simple - A simple dynamic model of a quadcopter
+                          # Add another model type as a child class of EquationsOfMotion

@@ -1,0 +1,3 @@
+# Parameters used in the Estimator
+est:
+  use_truth: true             # if simulating and true, the estimator will just repeat truth

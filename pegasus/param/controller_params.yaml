@@ -1,0 +1,5 @@
+# Parameters for the controller
+control_rate: 300       # The rate the controller runs at (Hz)
+
+control_type: PD        # Type of Controller
+                        # PD - Proportinal Derivative Control
