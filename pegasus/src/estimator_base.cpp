@@ -1,116 +1,146 @@
-#include "pegasus_sim/equations_of_motion_base.h"
+#include "pegasus/estimator_base.h"
 
-#include "pegasus_sim/simple_dynamic_model.h"
+#include "pegasus/luenberger_observer.h"
 
-namespace pegasus_sim
+namespace pegasus
 {
-EquationsOfMotion::EquationsOfMotion() :
+Estimator::Estimator() :
   nh_(ros::NodeHandle())
 {
-  //************** SUBSCRIBERS AND PUBLISHERS **************//
-  motor_command_subscriber_ = nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback, this);
-
-  truth_publisher_ = nh_.advertise<pegasus::VehicleState>("/pegasus_sim/truth",1);
-
   //********************** PARAMETERS **********************//
-  // Simulation Parameters
-  float propogate_rate, update_viz_rate;
-  if (!(ros::param::get("propogate_rate",propogate_rate)))
-    ROS_WARN("No param named 'propogate_rate'");
-  if (!(ros::param::get("update_viz_rate",update_viz_rate)))
-    ROS_WARN("No param named 'update_viz_rate'");
-  if (!(ros::param::get("alpha",alpha_)))
-    ROS_WARN("No param named 'alpha");
+  // Estimator Parameters
+  bool use_truth, simulating;
+  float estimate_rate(1.0);
+  int num_motors;
+  if (!(ros::param::get("est/use_truth",use_truth)))
+    ROS_WARN("No param named 'use_truth'");
+  if (!(ros::param::get("/simulating",simulating)))
+    ROS_WARN("No param named 'simulating'");
+  if (!(ros::param::get("vehicle_description/num_motors",num_motors)))
+    ROS_WARN("No param named 'num_motors'");
+  if (use_truth && !simulating)
+  {
+    use_truth = false;
+    ROS_WARN("IF NOT SIMULATING, TRUTH IS NOT ACCESSIBLE: use_truth = false");
+  }
+  if(!simulating || !use_truth)
+  {
+    std::string est_type;
+    if (!(ros::param::get("est/est_type",est_type)))
+      ROS_WARN("No param named 'est_type'");
+    if (!(ros::param::get("est/" + est_type + "/estimate_rate",estimate_rate)))
+      ROS_WARN("No param named 'estimate_rate'");
+  }
 
-  // Vehicle Parameters (TODO: pull in the vehicle description parameters)
+  //************** SUBSCRIBERS AND PUBLISHERS **************//
+  if (num_motors == 2)
+    motor_command_subscriber_ = nh_.subscribe("motor_command", 1, &Estimator::motorCommandCallback2, this);
+  else if (num_motors == 3)
+    motor_command_subscriber_ = nh_.subscribe("motor_command", 1, &Estimator::motorCommandCallback3, this);
+  else if (num_motors == 4)
+    motor_command_subscriber_ = nh_.subscribe("motor_command", 1, &Estimator::motorCommandCallback4, this);
+  else if (num_motors == 6)
+    motor_command_subscriber_ = nh_.subscribe("motor_command", 1, &Estimator::motorCommandCallback6, this);
+  else if (num_motors == 8)
+    motor_command_subscriber_ = nh_.subscribe("motor_command", 1, &Estimator::motorCommandCallback8, this);
+  else
+    ROS_ERROR("PARAM 'num_motors' IS FAULTY. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
+
+  if (simulating && use_truth)
+  {
+    truth_subscriber_ = nh_.subscribe("/pegasus_sim/truth",1,&Estimator::truthCallback, this);
+  }
+  else
+  {
+
+  }
+
+  state_hat_publisher_ = nh_.advertise<VehicleState>("state_hat",1);
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
-  state_.N = 0.0;
-  state_.E = 0.0;
-  state_.D = -3.0;
+  state_hat_.N = 0.0;
+  state_hat_.E = 0.0;
+  state_hat_.D = 0.0;
 
   //******************** CLASS VARIABLES *******************//
-  odom_trans_.header.frame_id = "odom";
-  odom_trans_.child_frame_id = "base_link";
-  srand(time(0));
+  if (num_motors == 2)
+    motors_ = new pegasus::motor_struct_2;
+  else if (num_motors == 3)
+    motors_ = new pegasus::motor_struct_3;
+  else if (num_motors == 4)
+    motors_ = new pegasus::motor_struct_4;
+  else if (num_motors == 6)
+    motors_ = new pegasus::motor_struct_6;
+  else if (num_motors == 8)
+    motors_ = new pegasus::motor_struct_8;
+  else
+    ROS_ERROR("THE STRUCT 'motors_' WAS NOT INITIALIZED. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
+
   last_time_ = ros::Time::now();
 
   //***************** CALLBACKS AND TIMERS *****************//
-  propogate_timer_ = nh_.createTimer(ros::Duration(1.0/propogate_rate), &EquationsOfMotion::propogate, this);
-  update_viz_timer_ = nh_.createWallTimer(ros::WallDuration(1.0/update_viz_rate), &EquationsOfMotion::updateViz, this);
-
+  if (!simulating || !use_truth)
+    estimate_timer_ = nh_.createTimer(ros::Duration(1.0/estimate_rate), &Estimator::estimate, this);
   //********************** FUNCTIONS ***********************//
-  //addUncertainty(&vehicle_parameter_); // TODO: Do this for each appropriate Vehicle Parameter
 
-} // end constructor
-void EquationsOfMotion::propogate(const ros::TimerEvent&)
+
+}
+Estimator::~Estimator()
 {
-  // Runge-Kutta 4th Order - Compute Truth
+  delete motors_;
+}
+void Estimator::estimate(const ros::TimerEvent& event)
+{
+  ROS_ERROR("CHILD CLASS FUNCTION 'estimate' WAS NOT CALLED.");
+}
+void Estimator::motorCommandCallback2(const MotorCommand2ConstPtr &msg)
+{
+  motors_->msg2struct(msg);
+}
+void Estimator::motorCommandCallback3(const MotorCommand3ConstPtr &msg)
+{
+  motors_->msg2struct(msg);
+}
+void Estimator::motorCommandCallback4(const MotorCommand4ConstPtr &msg)
+{
+  motors_->msg2struct(msg);
+}
+void Estimator::motorCommandCallback6(const MotorCommand6ConstPtr &msg)
+{
+  motors_->msg2struct(msg);
+}
+void Estimator::motorCommandCallback8(const MotorCommand8ConstPtr &msg)
+{
+  motors_->msg2struct(msg);
+}
+void Estimator::truthCallback(const VehicleStateConstPtr &msg)          // Only used in simulation when use_truth is true
+{
   ros::Time new_time = ros::Time::now();
-  float h = (new_time - last_time_).toSec();
-  k1_ = derivative(state_              );
-  k2_ = derivative(state_ + k1_*(h/2.0));
-  k3_ = derivative(state_ + k2_*(h/2.0));
-  k4_ = derivative(state_ + k3_*h      );
-  state_ = state_ + (k1_ + k2_*2.0 + k3_*2.0 + k4_)*(h/6.0);
-
-  // Publish Truth TODO: finish all the states in truth
-  truth_msg_.N = state_.N;
-  truth_msg_.E = state_.E;
-  truth_msg_.D = state_.D;
-  truth_publisher_.publish(truth_msg_);
-
+  state_hat_.msg2struct(msg);
+  state_hat_publisher_.publish(*msg);
   last_time_ = new_time;
 }
-pegasus::state_struct EquationsOfMotion::derivative(pegasus::state_struct)
-{
-  ROS_ERROR("CHILD CLASS FUNCTION 'derivative' WAS NOT CALLED.");
-}
-void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
-{
-  // Pull in State (truth), translate to quaternion, broadcast tf
-  odom_trans_.header.stamp = ros::Time::now();
-  odom_trans_.transform.translation.x =  state_.N;
-  odom_trans_.transform.translation.y =  state_.E;
-  odom_trans_.transform.translation.z = -state_.D;
-  tf::Quaternion q(0.0, 0.0, 1.0, 0.0);           // TODO: translate state_ to a quaternion
-  q.normalize();
-  tf::quaternionTFToMsg(q,odom_trans_.transform.rotation);
-  pose_broadcaster_.sendTransform(odom_trans_);
-}
-void EquationsOfMotion::motorCommandCallback(const pegasus::MotorCommand4ConstPtr &msg)
-{
-  m1_ = msg->m1;
-  m2_ = msg->m2;
-  m3_ = msg->m3;
-  m4_ = msg->m4;
-}
-void EquationsOfMotion::addUncertainty(float* var)
-{
-  float random = ((float) rand()/RAND_MAX);
-  *var =  *var + (random*2.0*alpha_ - alpha_)*(*var);
-}
-} // end namespace pegasus_sim
+} // end namespace pegasus
 
 //********************************************************//
 //************************ MAIN **************************//
 //********************************************************//
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "equations_of_motion");
-  ros::NodeHandle nh("pegasus_sim");
+  ros::init(argc, argv, "estimator");
+  ros::NodeHandle nh("pegasus");
 
-  pegasus_sim::EquationsOfMotion *eom_obj;
-  std::string model_type;
-  if (!(ros::param::get("model_type",model_type)))
-    ROS_WARN("No param named 'model_type'");
-  if (model_type == "simple")
-    eom_obj = new pegasus_sim::SimpleDynamicModel;
+  pegasus::Estimator *est_obj;
+  std::string est_type;
+  if (!(ros::param::get("est/est_type",est_type)))
+    ROS_WARN("No param named 'est_type'");
+  if (est_type == "luenberger")
+    est_obj = new pegasus::LuenbergerObserver;
   else
-    ROS_ERROR("NO DYNAMIC MODEL INITIALIZED");
+    ROS_ERROR("NO ESTIMATOR INITIALIZED");
 
   ros::spin();
 
-  delete eom_obj;
+  // delete est_obj;
   return 0;
 } // end main

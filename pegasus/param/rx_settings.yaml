@@ -1,0 +1,18 @@
+# This file sets up the reciever, so it is interpreted correctly.
+rx:
+  channel_map: AETR1234       # This is the channel mapping
+                              # A = Aileron, roll
+                              # E = Elevator, pitch
+                              # T = Thrust
+                              # R = Rudder
+                              # Number = Aux-Number
+  min_us: 1000.               # Lowest signal the tx sends in microseconds.
+  max_us: 2000.               # Longest signal the tx sends in microseconds.
+
+  arming:
+    arm_aux_channel: 1        # The auxilary channel used to arm and disarm the vehicle (no matter the channel mapping)
+    min_arm_us: 1750.         # In order for motors to spin, the 'arming/aux_channel' must send a minimum of this us.
+    max_arm_us: 2000.         # In order for motors to spin, the 'arming/aux_channel' must send a maximum of this us.
+    arming_rate: 20.          # The rate at which the arming/aux_channel is checked (Hz)
+    arm_throttle_max: 1025.   # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
+                              # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.

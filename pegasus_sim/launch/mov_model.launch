@@ -8,7 +8,9 @@
     <rosparam command="load" file="$(find pegasus)/param/controller_params.yaml"  />
     <rosparam command="load" file="$(find pegasus)/param/estimator_params.yaml"  />
     <rosparam command="load" file="$(find pegasus)/param/ground_station_params.yaml"  />
+    <rosparam command="load" file="$(find pegasus)/param/rx_settings.yaml"  />
     <node name="controller" pkg="pegasus" type="controller" output="screen"   />
+    <node name="estimator" pkg="pegasus" type="estimator" output="screen"   />
   </group>
   <group ns="pegasus_sim">
     <rosparam command="load" file="$(find pegasus_sim)/param/simulation_params.yaml"  />

@@ -1,3 +1,7 @@
 # Parameters used in the Estimator
 est:
   use_truth: true             # if simulating and true, the estimator will just repeat truth
+  est_type: luenberger        # What type of estimator to use
+                              # luenberger - A Luenberger Observer.
+  luenberger:
+    estimate_rate: 100        # How often the luenberger observer will estimate (Hz)
