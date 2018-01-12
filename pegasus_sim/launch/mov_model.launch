@@ -15,6 +15,7 @@
   <group ns="pegasus_sim">
     <rosparam command="load" file="$(find pegasus_sim)/param/simulation_params.yaml"  />
     <node name="eom" pkg="pegasus_sim" type="equations_of_motion" output="screen"   />
+    <node name="sensors" pkg="pegasus_sim" type="sensor_simulation" output="screen"   />
   </group>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pegasus_sim)/viz/qcopter.rviz" required="true"/>
 </launch>

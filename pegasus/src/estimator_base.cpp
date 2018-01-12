@@ -52,7 +52,10 @@ Estimator::Estimator() :
   }
   else
   {
-
+    sonar_subscriber_ = nh_.subscribe("sonar", 1, &Estimator::sonarCallback, this);
+    gps_subscriber_ = nh_.subscribe("gps", 1, &Estimator::gpsCallback, this);
+    barometer_subscriber_ = nh_.subscribe("barometer", 1, &Estimator::barometerCallback, this);
+    imu_subscriber_ = nh_.subscribe("imu", 1, &Estimator::imuCallback, this);
   }
 
   state_hat_publisher_ = nh_.advertise<VehicleState>("state_hat",1);
@@ -113,6 +116,41 @@ void Estimator::motorCommandCallback8(const MotorCommand8ConstPtr &msg)
 {
   motors_->msg2struct(msg);
 }
+void Estimator::sonarCallback(const SonarConstPtr &msg)
+{
+  sonar_distance_ = msg->distance;
+}
+void Estimator::gpsCallback(const GPSConstPtr &msg)
+{
+  gps_fix_           = msg->fix;
+  gps_NumSat_        = msg->NumSat;
+  gps_latitude_      = msg->latitude;
+  gps_longitude_     = msg->longitude;
+  gps_altitude_      = msg->altitude;
+  gps_speed_         = msg->speed;
+  gps_ground_course_ = msg->ground_course;
+  gps_covariance_    = msg->covariance;
+}
+void Estimator::barometerCallback(const BarometerConstPtr &msg)
+{
+  barometer_pressure_ = msg->pressure;
+}
+void Estimator::imuCallback(const sensor_msgs::ImuConstPtr &msg)
+{
+  //tf::transformMsgToTF(&(msg->orientation), imu_orientation_); // TODO: This line doesn't work... I am not sure what data type to transform it into.
+  imu_angular_velocity_[0]                 = msg->angular_velocity.x;
+  imu_angular_velocity_[1]                 = msg->angular_velocity.y;
+  imu_angular_velocity_[2]                 = msg->angular_velocity.z;
+  imu_linear_acceleration_[0]              = msg->linear_acceleration.x;
+  imu_linear_acceleration_[1]              = msg->linear_acceleration.y;
+  imu_linear_acceleration_[2]              = msg->linear_acceleration.z;
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    imu_orientation_covariance_[i]         = msg->orientation_covariance[i];
+    imu_angular_velocity_covariance_[i]    = msg->angular_velocity_covariance[i];
+    imu_linear_acceleration_covariance_[i] = msg->linear_acceleration_covariance[i];
+  }
+}
 void Estimator::truthCallback(const VehicleStateConstPtr &msg)          // Only used in simulation when use_truth is true
 {
   ros::Time new_time = ros::Time::now();
@@ -141,6 +179,6 @@ int main(int argc, char** argv)
 
   ros::spin();
 
-  // delete est_obj;
+  delete est_obj;
   return 0;
 } // end main

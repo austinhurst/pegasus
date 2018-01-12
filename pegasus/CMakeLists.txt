@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+  sensor_msgs
   message_generation
 )
 
@@ -50,13 +51,16 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
  FILES
+ VehicleState.msg
  MotorCommand2.msg
  MotorCommand3.msg
  MotorCommand4.msg
  MotorCommand6.msg
  MotorCommand8.msg
- VehicleState.msg
  RX8.msg
+ Barometer.msg
+ GPS.msg
+ Sonar.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -77,6 +81,7 @@ add_message_files(
 generate_messages(
  DEPENDENCIES
  std_msgs
+ sensor_msgs
 )
 
 ################################################
@@ -111,7 +116,7 @@ generate_messages(
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES pegasus
-   CATKIN_DEPENDS roscpp std_msgs tf
+   CATKIN_DEPENDS roscpp std_msgs sensor_msgs tf message_runtime
 #  DEPENDS system_lib
 )
 

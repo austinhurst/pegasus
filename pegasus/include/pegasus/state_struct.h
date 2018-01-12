@@ -9,7 +9,7 @@ namespace pegasus
   struct state_struct
   {
     //*********************** VARIABLE ***********************//
-    // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
+    // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT OR MESSAGE
     float N;
     float E;
     float D;

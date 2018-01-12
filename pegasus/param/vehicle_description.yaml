@@ -1,3 +1,16 @@
 # This file defines the specific multi-rotor to fly.
 vehicle_description:
   num_motors: 4                   # number of motors
+  sensors:
+    use_sonar: true               # true if using a sonar unit
+    use_gps: true                 # true if using a gps unit
+    use_imu: true                 # true if using an accelerometer and gyro (magnetometer)
+    use_barometer: true           # true if using a barometer
+    sonar:
+      sonar_rate: 20.0            # update rate (Hz)
+    gps:
+      gps_rate: 1.0               # update rate (Hz)
+    imu:
+      imu_rate: 200.0             # update rate (Hz)
+    barometer:
+      barometer_rate: 45.0        # update rate (Hz)

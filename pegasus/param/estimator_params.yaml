@@ -1,6 +1,6 @@
 # Parameters used in the Estimator
 est:
-  use_truth: true             # if simulating and true, the estimator will just repeat truth
+  use_truth: false             # if simulating and true, the estimator will just repeat truth
   est_type: luenberger        # What type of estimator to use
                               # luenberger - A Luenberger Observer.
   luenberger:
