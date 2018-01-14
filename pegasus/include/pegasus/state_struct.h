@@ -10,55 +10,118 @@ namespace pegasus
   {
     //*********************** VARIABLE ***********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT OR MESSAGE
-    float N;
-    float E;
-    float D;
+    float pn;        // Inertial North position
+    float pe;        // Inertial East position
+    float pd;        // Inertial Down position
+    float u;         // Body frame velocity along i^(body)
+    float v;         // Body frame velocity along j^(body)
+    float w;         // Body frame velocity along k^(body)
+    float phi;       // Roll, angle rotated around i^(vehicle-2)
+    float theta;     // Pitch, angle rotated around j^(vehicle-1)
+    float psi;       // Yaw, angle rotated around k^(vehicle)
+    float p;         // Roll rate around i^(body)
+    float q;         // Pitch rate around j^(body)
+    float r;         // Yaw rate around k^(body)
 
   private:
     VehicleState _msg_;
   public:
     state_struct()
     {
-      N = 0.0;
-      E = 0.0;
-      D = 0.0;
+      pn    = 0.0f;
+      pe    = 0.0f;
+      pd    = 0.0f;
+      u     = 0.0f;
+      v     = 0.0f;
+      w     = 0.0f;
+      phi   = 0.0f;
+      theta = 0.0f;
+      psi   = 0.0f;
+      p     = 0.0f;
+      q     = 0.0f;
+      r     = 0.0f;
     }
     //****************** OPERATOR FUNCTIONS ******************//
     state_struct operator+(const state_struct s)
     {
       state_struct n;
-      n.N = s.N + N;
-      n.E = s.E + E;
-      n.D = s.D + D;
+      n.pn    = s.pn    + pn;
+      n.pe    = s.pe    + pe;
+      n.pd    = s.pd    + pd;
+      n.u     = s.u     + u;
+      n.v     = s.v     + v;
+      n.w     = s.w     + w;
+      n.phi   = s.phi   + phi;
+      n.theta = s.theta + theta;
+      n.psi   = s.psi   + psi;
+      n.p     = s.p     + p;
+      n.q     = s.q     + q;
+      n.r     = s.r     + r;
       return n;
     }
     state_struct operator*(const float num)
     {
       state_struct n;
-      n.N = num*N;
-      n.E = num*E;
-      n.D = num*D;
+      n.pn    = pn    * num;
+      n.pe    = pe    * num;
+      n.pd    = pd    * pd;
+      n.u     = u     * u;
+      n.v     = v     * v;
+      n.w     = w     * w;
+      n.phi   = phi   * phi;
+      n.theta = theta * theta;
+      n.psi   = psi   * psi;
+      n.p     = p     * p;
+      n.q     = q     * q;
+      n.r     = r     * r;
       return n;
     }
     //********************** FUNCTIONS ***********************//
     VehicleState msg()
     {
-      _msg_.N = N;
-      _msg_.E = E;
-      _msg_.D = D;
+      _msg_.pn    = pn;
+      _msg_.pe    = pe;
+      _msg_.pd    = pd;
+      _msg_.u     = u;
+      _msg_.v     = v;
+      _msg_.w     = w;
+      _msg_.phi   = phi;
+      _msg_.theta = theta;
+      _msg_.psi   = psi;
+      _msg_.p     = p;
+      _msg_.q     = q;
+      _msg_.r     = r;
       return _msg_;
     }
     void msg2struct(const VehicleState msg_in)
     {
-      N = msg_in.N;
-      E = msg_in.N;
-      D = msg_in.N;
+      pn    = msg_in.pn;
+      pe    = msg_in.pe;
+      pd    = msg_in.pd;
+      u     = msg_in.u;
+      v     = msg_in.v;
+      w     = msg_in.w;
+      phi   = msg_in.phi;
+      theta = msg_in.theta;
+      psi   = msg_in.psi;
+      p     = msg_in.p;
+      q     = msg_in.q;
+      r     = msg_in.r;
     }
     void msg2struct(const VehicleStateConstPtr &msg_in)
     {
-      N = msg_in->N;
-      E = msg_in->N;
-      D = msg_in->N;
+      pn    = msg_in->pn;
+      pe    = msg_in->pe;
+      pd    = msg_in->pd;
+      u     = msg_in->u;
+      v     = msg_in->v;
+      w     = msg_in->w;
+      phi   = msg_in->phi;
+      theta = msg_in->theta;
+      psi   = msg_in->psi;
+      p     = msg_in->p;
+      q     = msg_in->q;
+      r     = msg_in->r;
     }
   };
 } // end namespace pegasus

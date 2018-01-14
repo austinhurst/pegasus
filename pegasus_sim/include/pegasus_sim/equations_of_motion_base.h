@@ -1,6 +1,7 @@
 #ifndef EQUATIONS_OF_MOTION_BASE_H
 #define EQUATIONS_OF_MOTION_BASE_H
 
+#include <cmath>
 #include <string>
 #include <stdlib.h>
 #include <ros/ros.h>

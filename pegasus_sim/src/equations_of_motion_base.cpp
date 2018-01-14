@@ -23,9 +23,12 @@ EquationsOfMotion::EquationsOfMotion() :
   // Vehicle Parameters (TODO: pull in the vehicle description parameters)
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
-  state_.N = 0.0;
-  state_.E = 0.0;
-  state_.D = -3.0;
+  state_.pn = 0.0f;
+  state_.pe = 0.0f;
+  state_.pd = -3.0f;
+  state_.phi = 0.0*3.141592653/180.0;
+  state_.theta = 0.0*3.141592653/180.0;
+  state_.psi = 0.0*3.141592653/180.0;
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   if (num_motors == 2)
@@ -80,11 +83,11 @@ void EquationsOfMotion::propogate(const ros::TimerEvent&)
   // Runge-Kutta 4th Order - Compute Truth
   ros::Time new_time = ros::Time::now();
   float h = (new_time - last_time_).toSec();
-  k1_ = derivative(state_              );
-  k2_ = derivative(state_ + k1_*(h/2.0));
-  k3_ = derivative(state_ + k2_*(h/2.0));
-  k4_ = derivative(state_ + k3_*h      );
-  state_ = state_ + (k1_ + k2_*2.0 + k3_*2.0 + k4_)*(h/6.0);
+  k1_ = derivative(state_               );
+  k2_ = derivative(state_ + k1_*(h/2.0f));
+  k3_ = derivative(state_ + k2_*(h/2.0f));
+  k4_ = derivative(state_ + k3_*h       );
+  state_ = state_ + (k1_ + k2_*2.0f + k3_*2.0f + k4_)*(h/6.0f);
 
   truth_publisher_.publish(state_.msg());
   last_time_ = new_time;
@@ -97,11 +100,20 @@ void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
 {
   // Pull in State (truth), translate to quaternion, broadcast tf
   odom_trans_.header.stamp = ros::Time::now();
-  odom_trans_.transform.translation.x =  state_.N;
-  odom_trans_.transform.translation.y =  state_.E;
-  odom_trans_.transform.translation.z = -state_.D;
-  tf::Quaternion q(0.0, 0.0, 1.0, 0.0);           // TODO: translate state_ to a quaternion
-  q.normalize();
+  odom_trans_.transform.translation.x =  state_.pe;
+  odom_trans_.transform.translation.y =  state_.pn;
+  odom_trans_.transform.translation.z = -state_.pd;
+  // Euler Angles in NED to Quaternion in NED to Quaternion in XYZ
+  float qx,qy,qz,qw;
+  qx =   cosf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*cosf(state_.phi/2.0f)\
+       + sinf(state_.psi/2.0f)*cosf(state_.theta/2.0f)*sinf(state_.phi/2.0f);
+  qy =   cosf(state_.psi/2.0f)*cosf(state_.theta/2.0f)*sinf(state_.phi/2.0f)\
+       - sinf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*cosf(state_.phi/2.0f);
+  qz = - sinf(state_.psi/2.0f)*cosf(state_.theta/2.0f)*cosf(state_.phi/2.0f)\
+       + cosf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*sinf(state_.phi/2.0f);
+  qw =   cosf(state_.psi/2.0f)*cosf(state_.theta/2.0f)*cosf(state_.phi/2.0f)\
+       + sinf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*sinf(state_.phi/2.0f);
+  tf::Quaternion q(qx,qy,qz,qw);
   tf::quaternionTFToMsg(q,odom_trans_.transform.rotation);
   pose_broadcaster_.sendTransform(odom_trans_);
 }

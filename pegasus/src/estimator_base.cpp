@@ -61,9 +61,6 @@ Estimator::Estimator() :
   state_hat_publisher_ = nh_.advertise<VehicleState>("state_hat",1);
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
-  state_hat_.N = 0.0;
-  state_hat_.E = 0.0;
-  state_hat_.D = 0.0;
 
   //******************** CLASS VARIABLES *******************//
   if (num_motors == 2)
