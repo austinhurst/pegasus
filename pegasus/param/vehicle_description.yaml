@@ -1,6 +1,13 @@
 # This file defines the specific multi-rotor to fly.
 vehicle_description:
   num_motors: 4                   # number of motors
+  mass: 1.0                       # mass of vehicle in Kg
+  Jx: 1.0                         # moment  of inertia about i^b in Kg*m^2
+  Jy: 1.0                         # moment  of inertia about j^b in Kg*m^2
+  Jz: 1.0                         # moment  of inertia about k^b in Kg*m^2
+  Jxy: 1.0                        # product of inertia about i^b in Kg*m^2
+  Jxz: 1.0                        # product of inertia about j^b in Kg*m^2
+  Jyz: 1.0                        # product of inertia about k^b in Kg*m^2
   sensors:
     use_sonar: true               # true if using a sonar unit
     use_gps: true                 # true if using a gps unit

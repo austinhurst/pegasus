@@ -19,6 +19,20 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'alpha");
   if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors)))
     ROS_WARN("No param named 'num_motors");
+  if (!(ros::param::get("/pegasus/vehicle_description/mass",mass_)))
+    ROS_WARN("No param named 'mass");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jx",Jx_)))
+    ROS_WARN("No param named 'Jx");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jy",Jy_)))
+    ROS_WARN("No param named 'Jy");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jz",Jz_)))
+    ROS_WARN("No param named 'Jz");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jxy",Jxy_)))
+    ROS_WARN("No param named 'Jxy");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jxz",Jxz_)))
+    ROS_WARN("No param named 'num_motors");
+  if (!(ros::param::get("/pegasus/vehicle_description/Jyz",Jyz_)))
+    ROS_WARN("No param named 'Jyz");
 
   // Vehicle Parameters (TODO: pull in the vehicle description parameters)
 
@@ -70,14 +84,18 @@ EquationsOfMotion::EquationsOfMotion() :
   update_viz_timer_ = nh_.createWallTimer(ros::WallDuration(1.0/update_viz_rate), &EquationsOfMotion::updateViz, this);
 
   //********************** FUNCTIONS ***********************//
-  //addUncertainty(&vehicle_parameter_); // TODO: Do this for each appropriate Vehicle Parameter
-
+  addUncertainty(&mass_);
+  addUncertainty(&Jx_);
+  addUncertainty(&Jy_);
+  addUncertainty(&Jz_);
+  addUncertainty(&Jxy_);
+  addUncertainty(&Jxz_);
+  addUncertainty(&Jyz_);
 }
 EquationsOfMotion::~EquationsOfMotion()
 {
   delete motors_;
 }
-
 void EquationsOfMotion::propogate(const ros::TimerEvent&)
 {
   // Runge-Kutta 4th Order - Compute Truth

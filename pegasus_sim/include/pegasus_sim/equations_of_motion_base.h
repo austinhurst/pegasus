@@ -29,12 +29,17 @@ private:
   tf::TransformBroadcaster pose_broadcaster_;
 
   //******************** CLASS VARIABLES *******************//
-  // TODO: Vehicle Description (things like motor mass, to be used by 'derivative')
-
   float alpha_;                // uncertainty level (0.1 is 10% uncertainty)
+protected:
+  float mass_;                // mass of vehicle in Kg
+  float Jx_;                  // moment  of inertia about i^b in Kg*m^2
+  float Jy_;                  // moment  of inertia about j^b in Kg*m^2
+  float Jz_;                  // moment  of inertia about k^b in Kg*m^2
+  float Jxy_;                 // product of inertia about i^b in Kg*m^2
+  float Jxz_;                 // product of inertia about j^b in Kg*m^2
+  float Jyz_;                 // product of inertia about k^b in Kg*m^2
 
   // Truth Variables
-protected:
   pegasus::state_struct state_;
 
 private:
