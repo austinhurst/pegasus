@@ -1,12 +1,13 @@
 # This file sets up the reciever, so it is interpreted correctly.
 rx:
   channel_map: AETR1234       # This is the channel mapping
-                              # A = Aileron, roll
+                              # A = Aileron,  roll
                               # E = Elevator, pitch
-                              # T = Thrust
-                              # R = Rudder
+                              # T = Thrust,   throttle
+                              # R = Rudder,   yaw
                               # Number = Aux-Number
   min_us: 1000.               # Lowest signal the tx sends in microseconds.
+  mid_us: 1500.               # Middle signal the tx sends in microseconds.
   max_us: 2000.               # Longest signal the tx sends in microseconds.
 
   arming:
@@ -16,3 +17,17 @@ rx:
     arming_rate: 20.          # The rate at which the arming/aux_channel is checked (Hz)
     arm_throttle_max: 1025.   # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
                               # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.
+  modes:
+    mode_aux_channel: 2       # Channel that selects the flight mode.
+    min_angle_mode: 1000.     # Minimum microseconds for angle mode.
+    max_angle_mode: 1350.     # Minimum microseconds for angle mode.
+    min_rates_mode: 1350.     # Minimum microseconds for rates mode.
+    max_rates_mode: 1650.     # Minimum microseconds for rates mode.
+    min_veloc_mode: 1650.     # Minimum microseconds for veloc mode.
+    max_veloc_mode: 2000.     # Minimum microseconds for veloc mode.
+
+    rc_override_channel: 3    # Auxilary channel that determines autonomous flight or rc flight
+    min_rc_us: 1000.          # Minimum microseconds for rc takeover.
+    max_rc_us: 1500.          # Maximum microseconds for rc takeover.
+    min_auto_us: 1500.        # Minimum microseconds for autonomous takeover.
+    max_auto_us: 1500.        # Maximum microseconds for autonomous takeover.

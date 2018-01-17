@@ -10,38 +10,15 @@ Controller::Controller() :
   armed_ = false;
 
   //********************** PARAMETERS **********************//
-  // Control Parameters
   float control_rate, arming_rate;
   int num_motors_;
-  std::string channel_map;
   if (!(ros::param::get("control_rate",control_rate)))
     ROS_WARN("No param named 'control_rate'");
   if (!(ros::param::get("vehicle_description/num_motors",num_motors_)))
     ROS_WARN("No param named 'num_motors");
-  if (!(ros::param::get("rx/channel_map",channel_map)))
-    ROS_WARN("No param named 'channel_map'");
-  setChannels(channel_map);
-  if (!(ros::param::get("rx/min_us",min_us_)))
-    ROS_WARN("No param named 'min_us'");
-  if (!(ros::param::get("rx/max_us",max_us_)))
-    ROS_WARN("No param named 'max_us'");
-  if (!(ros::param::get("rx/arming/arm_aux_channel",arm_aux_channel_)))
-    ROS_WARN("No param named 'arm_aux_channel'");
-  if (arm_aux_channel_ != 1 && arm_aux_channel_ != 2 && arm_aux_channel_ != 3 && arm_aux_channel_ != 4)
-    ROS_ERROR("ARMING AUX CHANNEL IS NOT SET APPROPRIATELY");
-  if (!(ros::param::get("rx/arming/min_arm_us",min_arm_us_)))
-    ROS_WARN("No param named 'min_arm_us'");
-  if (!(ros::param::get("rx/arming/max_arm_us",max_arm_us_)))
-    ROS_WARN("No param named 'max_arm_us'");
-  if (min_arm_us_ >= max_arm_us_ ||(min_arm_us_ <= min_us_ && max_arm_us_ >= max_us_))
-    ROS_ERROR("ARMING RANGE SET INCORRECTLY");
   if (!(ros::param::get("rx/arming/arming_rate",arming_rate)))
     ROS_WARN("No param named 'arming_rate'");
-  if (!(ros::param::get("rx/arming/arm_throttle_max",arm_throttle_max_)))
-    ROS_WARN("No param named 'arm_throttle_max'");
-  if (arm_throttle_max_ > min_us_ + 25.0)
-    ROS_ERROR("THROTTLE ARMING RANGE SET INCORRECTLY (NOT WITHIN 25 OF 'min_us'");
-
+  pullParameters();
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   vehicle_state_subscriber_ = nh_.subscribe("state_hat",1,&Controller::vehicleStateCallback, this);
@@ -289,6 +266,58 @@ void Controller::setChannels(std::string channel_map)
       break;
     }
   }
+}
+void Controller::pullParameters()
+{
+  std::string channel_map;
+  if (!(ros::param::get("rx/channel_map",channel_map)))
+    ROS_WARN("No param named 'channel_map'");
+  setChannels(channel_map);
+  if (!(ros::param::get("rx/min_us",min_us_)))
+    ROS_WARN("No param named 'min_us'");
+  if (!(ros::param::get("rx/mid_us",mid_us_)))
+    ROS_WARN("No param named 'mid_us'");
+  if (!(ros::param::get("rx/max_us",max_us_)))
+    ROS_WARN("No param named 'max_us'");
+  if (!(ros::param::get("rx/arming/arm_aux_channel",arm_aux_channel_)))
+    ROS_WARN("No param named 'arm_aux_channel'");
+  if (arm_aux_channel_ != 1 && arm_aux_channel_ != 2 && arm_aux_channel_ != 3 && arm_aux_channel_ != 4)
+    ROS_ERROR("ARMING AUX CHANNEL IS NOT SET APPROPRIATELY");
+  if (!(ros::param::get("rx/arming/min_arm_us",min_arm_us_)))
+    ROS_WARN("No param named 'min_arm_us'");
+  if (!(ros::param::get("rx/arming/max_arm_us",max_arm_us_)))
+    ROS_WARN("No param named 'max_arm_us'");
+  if (min_arm_us_ >= max_arm_us_ ||(min_arm_us_ <= min_us_ && max_arm_us_ >= max_us_))
+    ROS_ERROR("ARMING RANGE SET INCORRECTLY");
+  if (!(ros::param::get("rx/arming/arm_throttle_max",arm_throttle_max_)))
+    ROS_WARN("No param named 'arm_throttle_max'");
+  if (arm_throttle_max_ > min_us_ + 25.0)
+    ROS_ERROR("THROTTLE ARMING RANGE SET INCORRECTLY (NOT WITHIN 25 OF 'min_us'");
+
+  if (!(ros::param::get("rx/modes/mode_aux_channel",mode_aux_channel_)))
+    ROS_WARN("No param named 'mode_aux_channel'");
+  if (!(ros::param::get("rx/modes/min_angle_mode",min_angle_mode_)))
+    ROS_WARN("No param named 'min_angle_mode'");
+  if (!(ros::param::get("rx/modes/max_angle_mode",max_angle_mode_)))
+    ROS_WARN("No param named 'max_angle_mode'");
+  if (!(ros::param::get("rx/modes/min_rates_mode",min_rates_mode_)))
+    ROS_WARN("No param named 'min_rates_mode'");
+  if (!(ros::param::get("rx/modes/max_rates_mode",max_rates_mode_)))
+    ROS_WARN("No param named 'max_rates_mode'");
+  if (!(ros::param::get("rx/modes/min_veloc_mode",min_veloc_mode_)))
+    ROS_WARN("No param named 'min_veloc_mode'");
+  if (!(ros::param::get("rx/modes/max_veloc_mode",max_veloc_mode_)))
+    ROS_WARN("No param named 'max_veloc_mode'");
+  if (!(ros::param::get("rx/modes/rc_override_channel",rc_override_channel_)))
+    ROS_WARN("No param named 'rc_override_channel'");
+  if (!(ros::param::get("rx/modes/min_rc_us",min_rc_us_)))
+    ROS_WARN("No param named 'min_rc_us'");
+  if (!(ros::param::get("rx/modes/max_rc_us",max_rc_us_)))
+    ROS_WARN("No param named 'max_rc_us'");
+  if (!(ros::param::get("rx/modes/min_auto_us",min_auto_us_)))
+    ROS_WARN("No param named 'min_auto_us'");
+  if (!(ros::param::get("rx/modes/max_auto_us",max_auto_us_)))
+    ROS_WARN("No param named 'max_auto_us'");
 }
 } // end namespace pegasus
 

@@ -14,7 +14,6 @@ SimpleDynamicModel::SimpleDynamicModel()
   invJ31_ = invJ13_;
   invJ32_ = invJ23_;
   invJ33_ = (Jx_ * Jy_  - Jxy_*Jxy_)/det_J;
-  invJ33_ = (Jx_ * Jy_  - Jxy_*Jxy_)/det_J;
 }
 pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 {

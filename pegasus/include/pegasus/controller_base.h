@@ -56,12 +56,30 @@ private:
   int num_motors_;
 
   float min_us_;
+  float mid_us_;
   float max_us_;
+
   // Arming Variables
   int arm_aux_channel_;
   float min_arm_us_;
   float max_arm_us_;
   float arm_throttle_max_;
+
+  // Mode Aux Channel
+  int mode_aux_channel_;
+  float min_angle_mode_;
+  float max_angle_mode_;
+  float min_rates_mode_;
+  float max_rates_mode_;
+  float min_veloc_mode_;
+  float max_veloc_mode_;
+
+  // RC Override Aux Channel
+  int rc_override_channel_;
+  float min_rc_us_;
+  float max_rc_us_;
+  float min_auto_us_;
+  float max_auto_us_;
 
   //***************** CALLBACKS AND TIMERS *****************//
   void vehicleStateCallback(const VehicleStateConstPtr &msg);
@@ -72,6 +90,7 @@ protected:
   virtual void control(const ros::TimerEvent& event);
   ros::Timer control_timer_;
   //********************** FUNCTIONS ***********************//
+  void pullParameters();
   void publishMotorCommand();
   void mapControlChannels();
   void mapAuxChannels();
