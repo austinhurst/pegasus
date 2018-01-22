@@ -15,7 +15,24 @@ void PD::control(const ros::TimerEvent& event)
   // last_time_
   // state_.
   // motors_->
-  // aileron_stick_, elevator_stick_, thrust_stick_, rudder_stick_
+
+
+  if (flight_mode_ == ANGLE_MODE)
+  {
+    
+  }
+  else if (flight_mode_ == RATES_MODE)
+  {
+
+  }
+  else if (flight_mode_ == VELOC_MODE)
+  {
+
+  }
+  else if (flight_mode_ == AUTO__MODE)
+  {
+
+  }
 
   publishMotorCommand();
   last_time_ = new_time;

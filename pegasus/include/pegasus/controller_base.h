@@ -1,12 +1,25 @@
 #ifndef CONTROLLER_BASE_H
 #define CONTROLLER_BASE_H
 
+#include <iostream>
+#include <fstream>
+
+
+#include <cmath>
+#include <map>
 #include <string>
 #include <ros/ros.h>
 #include <pegasus/VehicleState.h>
 #include <pegasus/RX8.h>
 #include <pegasus/state_struct.h>
 #include <pegasus/motor_struct.h>
+
+
+#define ANGLE_MODE 0
+#define RATES_MODE 1
+#define VELOC_MODE 2
+#define AUTO__MODE 3
+
 
 namespace pegasus
 {
@@ -28,22 +41,36 @@ private:
   //******************** CLASS VARIABLES *******************//
 protected:
   bool armed_;
+  int flight_mode_;
   pegasus::state_struct state_;
   ros::Time last_time_;
-  motor_struct *motors_;
 
-  float rx_[8];
-  float aileron_stick_;
-  float elevator_stick_;
-  float throttle_stick_;
-  float rudder_stick_;
-  float aux1_stick_;
-  float aux2_stick_;
-  float aux3_stick_;
-  float aux4_stick_;
+  float roll_desired_;
+  float pitch_desired_;
+  float thrust_desired_;
+
+  float yaw_rate_desired_;
+  float roll_rate_desired_;
+  float pitch_rate_desired_;
+
 
 private:
+  motor_struct *motors_;
+
   // rx Channel Variables
+  int rx_[8];
+  int aileron_stick_;
+  int elevator_stick_;
+  int throttle_stick_;
+  int rudder_stick_;
+  int aux1_stick_;
+  int aux2_stick_;
+  int aux3_stick_;
+  int aux4_stick_;
+  std::map<int, float> angle_map_;
+  std::map<int, float> rate_map_;
+  std::map<int, float> thrust_map_;
+
   int A_channel_;
   int E_channel_;
   int T_channel_;
@@ -55,37 +82,35 @@ private:
   int arming_channel_;
   int num_motors_;
 
-  float min_us_;
-  float mid_us_;
-  float max_us_;
+  int min_us_;
+  int mid_us_;
+  int max_us_;
 
-  // Arming Variables
+  // Arming Aux Channel
   int arm_aux_channel_;
-  float min_arm_us_;
-  float max_arm_us_;
-  float arm_throttle_max_;
+  int min_arm_us_;
+  int max_arm_us_;
+  int arm_throttle_max_;
 
   // Mode Aux Channel
   int mode_aux_channel_;
-  float min_angle_mode_;
-  float max_angle_mode_;
-  float min_rates_mode_;
-  float max_rates_mode_;
-  float min_veloc_mode_;
-  float max_veloc_mode_;
+  int min_angle_mode_;
+  int max_angle_mode_;
+  int min_rates_mode_;
+  int max_rates_mode_;
+  int min_veloc_mode_;
+  int max_veloc_mode_;
 
   // RC Override Aux Channel
   int rc_override_channel_;
-  float min_rc_us_;
-  float max_rc_us_;
-  float min_auto_us_;
-  float max_auto_us_;
+  int min_auto_us_;
+  int max_auto_us_;
 
   //***************** CALLBACKS AND TIMERS *****************//
   void vehicleStateCallback(const VehicleStateConstPtr &msg);
   void rxCallback(const RX8ConstPtr &msg);
-  void checkArmingChannel(const ros::TimerEvent& event);
-  ros::Timer arming_timer_;
+  void serviceAuxChannels(const ros::TimerEvent& event);
+  ros::Timer aux_timer_;
 protected:
   virtual void control(const ros::TimerEvent& event);
   ros::Timer control_timer_;
@@ -93,6 +118,7 @@ protected:
   void pullParameters();
   void publishMotorCommand();
   void mapControlChannels();
+  void buildStickMap();
   void mapAuxChannels();
   void setChannels(std::string channel_map);
   void disarm();
