@@ -13,7 +13,7 @@ SimpleDynamicModel::SimpleDynamicModel()
   invJ23_ = (Jx_ *Jyz_ + Jxy_*Jxz_)/det_J;
   invJ31_ = invJ13_;
   invJ32_ = invJ23_;
-  invJ33_ = (Jx_ * Jy_  - Jxy_*Jxy_)/det_J;
+  invJ33_ = (Jx_ * Jy_ - Jxy_*Jxy_)/det_J;
 }
 pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 {
@@ -52,7 +52,7 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
   float n  = 0.0;
   derivative_of.u = s.r*s.v - s.q*s.w + fx/mass_;
   derivative_of.v = s.p*s.w - s.r*s.u + fy/mass_;
-  derivative_of.w = s.p*s.u - s.p*s.v + fz/mass_;
+  derivative_of.w = s.q*s.u - s.p*s.v + fz/mass_;
 
   // (p_dot, q_dot, r_dot)^T = J^-1*(-omega_b/i^b x (J*omega_b/i^b) + m^b)          omega_b/i^b = (p,q,r)^T
   float negwJwm_i = -s.q*(-Jxz_*s.p - Jyz_*s.q + Jz_ *s.r) + s.r*(-Jxy_*s.p + Jy_ *s.q - Jyz_*s.r) + l;
