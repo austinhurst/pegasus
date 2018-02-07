@@ -12,6 +12,7 @@ public:
 
 private:
   virtual pegasus::state_struct derivative(pegasus::state_struct s);
+  virtual void eachTimeStep();
   float invJ11_;
   float invJ12_;
   float invJ13_;
@@ -21,6 +22,15 @@ private:
   float invJ31_;
   float invJ32_;
   float invJ33_;
+  float w_ns_;
+  float w_es_;
+  float w_ds_;
+  float w_xg_;
+  float w_yg_;
+  float w_zg_;
+  float half_rho_S_;
+  float cd_flat_plate_;
+
 };// end class SimpleDynamicModel
 } // end namespace pegasus_sim
 

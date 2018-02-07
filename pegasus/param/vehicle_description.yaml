@@ -1,5 +1,6 @@
 # This file defines the specific multi-rotor to fly.
 vehicle_description:
+  g: 9.80665                      # value of gravity m/s^2
   num_motors: 4                   # number of motors
   mass: 1.0                       # mass of vehicle in Kg
   Jx: 1.0                         # moment  of inertia about i^b in Kg*m^2
@@ -8,6 +9,10 @@ vehicle_description:
   Jxy: 1.0                        # product of inertia about i^b in Kg*m^2
   Jxz: 1.0                        # product of inertia about j^b in Kg*m^2
   Jyz: 1.0                        # product of inertia about k^b in Kg*m^2
+  rho: 1.225                      # density of air in kg/m^3
+  S: 0.004                        # area of flate plate assumption in m^2
+  b: 0.04                         # span of flate plate assumption in m
+  c: 0.1                          # chord of flate plate assumption in m
   sensors:
     use_sonar: true               # true if using a sonar unit
     use_gps: true                 # true if using a gps unit

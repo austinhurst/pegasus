@@ -64,16 +64,16 @@ namespace pegasus
       state_struct n;
       n.pn    = pn    * num;
       n.pe    = pe    * num;
-      n.pd    = pd    * pd;
-      n.u     = u     * u;
-      n.v     = v     * v;
-      n.w     = w     * w;
-      n.phi   = phi   * phi;
-      n.theta = theta * theta;
-      n.psi   = psi   * psi;
-      n.p     = p     * p;
-      n.q     = q     * q;
-      n.r     = r     * r;
+      n.pd    = pd    * num;
+      n.u     = u     * num;
+      n.v     = v     * num;
+      n.w     = w     * num;
+      n.phi   = phi   * num;
+      n.theta = theta * num;
+      n.psi   = psi   * num;
+      n.p     = p     * num;
+      n.q     = q     * num;
+      n.r     = r     * num;
       return n;
     }
     //********************** FUNCTIONS ***********************//

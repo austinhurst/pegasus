@@ -17,6 +17,8 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'update_viz_rate'");
   if (!(ros::param::get("sim/alpha",alpha_)))
     ROS_WARN("No param named 'alpha");
+  if (!(ros::param::get("/pegasus/vehicle_description/g",g_)))
+    ROS_WARN("No param named 'g");
   if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors)))
     ROS_WARN("No param named 'num_motors");
   if (!(ros::param::get("/pegasus/vehicle_description/mass",mass_)))
@@ -33,8 +35,14 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'num_motors");
   if (!(ros::param::get("/pegasus/vehicle_description/Jyz",Jyz_)))
     ROS_WARN("No param named 'Jyz");
-
-  // Vehicle Parameters (TODO: pull in the vehicle description parameters)
+  if (!(ros::param::get("/pegasus/vehicle_description/rho",rho_)))
+    ROS_WARN("No param named 'rho");
+  if (!(ros::param::get("/pegasus/vehicle_description/S",S_)))
+    ROS_WARN("No param named 'S");
+  if (!(ros::param::get("/pegasus/vehicle_description/b",b_)))
+    ROS_WARN("No param named 'b");
+  if (!(ros::param::get("/pegasus/vehicle_description/c",c_)))
+    ROS_WARN("No param named 'c");
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
   state_.pn = 0.0f;
@@ -101,18 +109,22 @@ void EquationsOfMotion::propogate(const ros::TimerEvent&)
   // Runge-Kutta 4th Order - Compute Truth
   ros::Time new_time = ros::Time::now();
   float h = (new_time - last_time_).toSec();
+  eachTimeStep();
   k1_ = derivative(state_               );
   k2_ = derivative(state_ + k1_*(h/2.0f));
   k3_ = derivative(state_ + k2_*(h/2.0f));
   k4_ = derivative(state_ + k3_*h       );
   state_ = state_ + (k1_ + k2_*2.0f + k3_*2.0f + k4_)*(h/6.0f);
-
   truth_publisher_.publish(state_.msg());
   last_time_ = new_time;
 }
 pegasus::state_struct EquationsOfMotion::derivative(pegasus::state_struct)
 {
   ROS_ERROR("CHILD CLASS FUNCTION 'derivative' WAS NOT CALLED.");
+}
+void EquationsOfMotion::eachTimeStep()
+{
+  ROS_ERROR("CHILD CLASS FUNCTION 'eachTimeStep' WAS NOT CALLED.");
 }
 void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
 {

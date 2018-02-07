@@ -31,6 +31,7 @@ private:
   //******************** CLASS VARIABLES *******************//
   float alpha_;                // uncertainty level (0.1 is 10% uncertainty)
 protected:
+  float g_;                   // value of gravity
   float mass_;                // mass of vehicle in Kg
   float Jx_;                  // moment  of inertia about i^b in Kg*m^2
   float Jy_;                  // moment  of inertia about j^b in Kg*m^2
@@ -38,6 +39,10 @@ protected:
   float Jxy_;                 // product of inertia about i^b in Kg*m^2
   float Jxz_;                 // product of inertia about j^b in Kg*m^2
   float Jyz_;                 // product of inertia about k^b in Kg*m^2
+  float rho_;                 // density of air kg/m^3
+  float S_;                   // area of the flate plate assumption
+  float c_;                   // chord of the flat plate assumption
+  float b_;                   // span of the flat plate assumption
 
   // Truth Variables
   pegasus::state_struct state_;
@@ -74,6 +79,7 @@ private:
   void addUncertainty(float* var);
 protected:
   virtual pegasus::state_struct derivative(pegasus::state_struct state);
+  virtual void eachTimeStep();
 
 };// end class EquationsOfMotion
 } // end namespace pegasus_sim

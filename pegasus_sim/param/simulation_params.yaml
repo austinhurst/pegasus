@@ -3,7 +3,12 @@ sim:
   propogate_rate: 200.0   # How often the dynamics are updated in Hz
 
   alpha: 0.0              # Amount of uncertainty (0.1 -> 10% uncertainty)
+  cd_flat_plate: 1.28     # Coefficient of Drag for a flat plate (perpendicular to flow)
   model_type: simple      # The type of dynamic model that is used
                           # options include:
                           #   simple - A simple dynamic model of a quadcopter
                           # Add another model type as a child class of EquationsOfMotion
+  wind:
+    w_ns: 0.0             # Steady wind speed in north direction (m/s)
+    w_es: 0.0             # Steady wind speed in east direction  (m/s)
+    w_ds: 0.0             # Steady wind speed in down direction  (m/s)
