@@ -1,9 +1,7 @@
 # Parameters for the simulation
 sim:
   propogate_rate: 200.0   # How often the dynamics are updated in Hz
-
   alpha: 0.0              # Amount of uncertainty (0.1 -> 10% uncertainty)
-  cd_flat_plate: 1.28     # Coefficient of Drag for a flat plate (perpendicular to flow)
   model_type: simple      # The type of dynamic model that is used
                           # options include:
                           #   simple - A simple dynamic model of a quadcopter

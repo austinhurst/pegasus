@@ -10,8 +10,6 @@ SimpleDynamicModel::SimpleDynamicModel()
     ROS_WARN("No param named 'w_es'");
   if (!(ros::param::get("sim/wind/w_ds",w_ds_)))
     ROS_WARN("No param named 'w_ds'");
-  if (!(ros::param::get("sim/cd_flat_plate",cd_flat_plate_)))
-    ROS_WARN("No param named 'cd_flat_plate'");
 
   float det_J = Jx_*(Jy_*Jz_ - Jyz_*Jyz_) - Jxy_*(Jxy_*Jz_ + Jxz_*Jyz_) - Jxz_*(Jxy_*Jyz_ + Jxz_*Jy_);
   invJ11_ = (Jy_ *Jz_  - Jyz_*Jyz_)/det_J;
@@ -76,8 +74,10 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
   else
   {
     float alpha, gamma, beta;
-    if (ur == 0.0f)
+    if (ur == 0.0f && wr == 0.0f)
       alpha = 0.0f;
+    else if (ur == 0.0f)
+      alpha = M_PI*wr/fabs(wr);
     else
       alpha = atan2f(wr,ur);
     if (vr == 0.0f)
@@ -110,12 +110,11 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
     float fl_gamma  = f_C_gamma*CL_gamma;
     float fd_gamma  = f_C_gamma*CD_gamma;
     float m_gamma   = f_C_gamma*CM_gamma*b_;
-    float fd_z      = half_rho_S_*wr*wr*cd_flat_plate_*sgn_wr;
 
     // Put forces into body frame
     fx_w = -c_alpha*fd_alpha + s_alpha*fl_alpha;
     fy_w = -c_gamma*fd_gamma + s_gamma*fl_gamma;
-    fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma - fd_z;
+    fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma;
     l_w  = -m_gamma;
     m_w  =  m_alpha;
     n_w  = 0.0f;
