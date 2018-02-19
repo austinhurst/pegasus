@@ -162,6 +162,9 @@ void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
   odom_trans_.transform.translation.x =  state_.pe;
   odom_trans_.transform.translation.y =  state_.pn;
   odom_trans_.transform.translation.z = -state_.pd;
+  // odom_trans_.transform.translation.x =  0.0;
+  // odom_trans_.transform.translation.y =  0.0;
+  // odom_trans_.transform.translation.z =  0.0;
   // Euler Angles in NED to Quaternion in NED to Quaternion in XYZ
   float qx,qy,qz,qw;
   qx =   cosf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*cosf(state_.phi/2.0f)\
@@ -201,24 +204,24 @@ void EquationsOfMotion::addUncertainty(float* var)
   float random = ((float) rand()/RAND_MAX);
   *var =  *var + (random*2.0*alpha_ - alpha_)*(*var);
 }
-void EquationsOfMotion::initialize_motor(std::string i, pegasus::motor_description &md)
+void EquationsOfMotion::initialize_motor(std::string i, pegasus::motor_description* md)
 {
   bool ccw;
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/x",md->x)))
-    ROS_WARN("No param named 'm" + i + "/x");
+    ROS_WARN("No param named 'm%s/x",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/y",md->y)))
-    ROS_WARN("No param named 'm" + i + "/y");
+    ROS_WARN("No param named 'm%s/y",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/z",md->z)))
-    ROS_WARN("No param named 'm" + i + "/z");
+    ROS_WARN("No param named 'm%s/z",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tx",md->Tx)))
-    ROS_WARN("No param named 'm" + i + "/Tx");
+    ROS_WARN("No param named 'm%s/Tx",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Ty",md->Ty)))
-    ROS_WARN("No param named 'm" + i + "/Ty");
+    ROS_WARN("No param named 'm%s/Ty",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tz",md->Tz)))
-    ROS_WARN("No param named 'm" + i + "/Tz");\
+    ROS_WARN("No param named 'm%s/Tz",i.c_str());
   if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/ccw",ccw)))
-    ROS_WARN("No param named 'm" + i + "/ccw");
-  md->dir = ccw ? 1.0f : -1.0f;
+    ROS_WARN("No param named 'm%s/ccw",i.c_str());
+  md->dir = ccw ? -1.0f : 1.0f;
 }
 } // end namespace pegasus_sim
 

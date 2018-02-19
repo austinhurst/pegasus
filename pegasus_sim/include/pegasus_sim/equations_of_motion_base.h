@@ -94,7 +94,7 @@ private:
   ros::WallTimer update_viz_timer_;
 
   //********************** FUNCTIONS ***********************//
-  void initialize_motor(std::string i, pegasus::motor_description &md);
+  void initialize_motor(std::string i, pegasus::motor_description *md);
   void addUncertainty(float* var);
 protected:
   virtual pegasus::state_struct derivative(pegasus::state_struct state);

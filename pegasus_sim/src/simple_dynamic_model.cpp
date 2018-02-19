@@ -23,6 +23,8 @@ SimpleDynamicModel::SimpleDynamicModel()
   invJ33_      = (Jx_ * Jy_ - Jxy_*Jxy_)/det_J;
   half_rho_S_  = 0.5f*rho_*S_;
   mg_          = mass_*g_;
+  Ap_          = M_PI*Dp_*Dp_/4.0f;
+  piD30_       = M_PI/30.0f;
 }
 pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 {
@@ -120,7 +122,7 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
     fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma;
     l_w  = -m_gamma;
     m_w  =  m_alpha;
-    n_w  = 0.0f;
+    n_w  =  0.0f;
   }
   // Force due to Propultion
   float fx_p, fy_p, fz_p, l_p, m_p, n_p;
@@ -133,26 +135,38 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 
   for (int ii = 0; ii < num_motors_; ii++)
   {
-    float delta_m = motors_->m1;
-    float omega, i, Qm, P_shaft, T, Q;
+    pegasus::motor_description *md;
+    float delta_m;
+    switch (ii)
+    {
+      case 0: md = &m1d_; delta_m = motors_->m1; break;
+      case 1: md = &m2d_; delta_m = motors_->m2; break;
+      case 2: md = &m3d_; delta_m = motors_->m3; break;
+      case 3: md = &m4d_; delta_m = motors_->m4; break;
+      case 4: md = &m5d_; delta_m = motors_->m5; break;
+      case 5: md = &m6d_; delta_m = motors_->m6; break;
+      case 6: md = &m7d_; delta_m = motors_->m7; break;
+      case 7: md = &m8d_; delta_m = motors_->m8; break;
+    }
+
     // Model of a DC Motor
-    Ap      = pi*D^2/4;
+    float omega, i, Qm, P_shaft, T, Q;
     omega   = K_delta_t_*delta_m;
-    i       = (Vb_ - omega/Kv_)/R_;
-    Qm      = (i-i0_)/(Kv_*pi/30.0);
-    P_shaft = Qm*omega*pi/30.0;
+    i       = (Vb_ - omega/Kv_)/Rm_;
+    Qm      = (i-i0_)/(Kv_*piD30_);
+    P_shaft = Qm*omega*piD30_;
 
     // Momentum Theory
-    T = pow(P_shaft*P_shaft*2.0f*rho_*Ap, 1.0f/3.0f);
-    Q = KQ_*omega*omega*m1d_->dir;
+    T = pow(P_shaft*P_shaft*2.0f*rho_*Ap_, 1.0f/3.0f);
+    Q = KQ_*omega*omega*md->dir;
 
     // Put the Forces and Torques into the correct orientation
-    fx_p += T*m1d_.Tx;
-    fy_p += T*m1d_.Ty;
-    fz_p += T*m1d_.Tz;
-    l_p  += T*m1d_.Tz*.m1d_.y + T*m1d_.Ty*m1d_.z + Q*m1d_.Tx*m1d_.dir;
-    m_p  += T*m1d_.Tz*.m1d_.x + T*m1d_.Tx*m1d_.z + Q*m1d_.Ty*m1d_.dir;
-    n_p  += T*m1d_.Tx*.m1d_.y + T*m1d_.Ty*m1d_.x + Q*m1d_.Tz*m1d_.dir;
+    fx_p += T*md->Tx;
+    fy_p += T*md->Ty;
+    fz_p += T*md->Tz;
+    l_p  += T*md->Tz*md->y - T*md->Ty*md->z + Q*md->Tx;
+    m_p  += T*md->Tx*md->z - T*md->Tz*md->x + Q*md->Ty;
+    n_p  += T*md->Ty*md->x - T*md->Tx*md->y + Q*md->Tz;
   }
 
   // Total Forces
