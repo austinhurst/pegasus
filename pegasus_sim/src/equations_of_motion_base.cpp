@@ -10,7 +10,6 @@ EquationsOfMotion::EquationsOfMotion() :
   //********************** PARAMETERS **********************//
   // Simulation Parameters
   float propogate_rate, update_viz_rate;
-  int num_motors;
   if (!(ros::param::get("sim/propogate_rate",propogate_rate)))
     ROS_WARN("No param named 'propogate_rate'");
   if (!(ros::param::get("/pegasus/ground_station/update_viz_rate",update_viz_rate)))
@@ -19,7 +18,7 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'alpha");
   if (!(ros::param::get("/pegasus/vehicle_description/g",g_)))
     ROS_WARN("No param named 'g");
-  if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors)))
+  if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors_)))
     ROS_WARN("No param named 'num_motors");
   if (!(ros::param::get("/pegasus/vehicle_description/mass",mass_)))
     ROS_WARN("No param named 'mass");
@@ -43,6 +42,36 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'b");
   if (!(ros::param::get("/pegasus/vehicle_description/c",c_)))
     ROS_WARN("No param named 'c");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/K_delta_t",K_delta_t_)))
+    ROS_WARN("No param named 'K_delta_t");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/KQ",KQ_)))
+    ROS_WARN("No param named 'KQ");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/Vb",Vb_)))
+    ROS_WARN("No param named 'Vb");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/Kv",Kv_)))
+    ROS_WARN("No param named 'Kv");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/Rm",Rm_)))
+    ROS_WARN("No param named 'Rm");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/i0",i0_)))
+    ROS_WARN("No param named 'i0");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/Dp",Dp_)))
+    ROS_WARN("No param named 'Dp");
+  Dp_ = Dp_*0.0254f;
+
+  for (int i = 0; i < num_motors_; i++)
+  {
+    switch (i)
+    {
+      case 0: initialize_motor("1", &m1d_); break;
+      case 1: initialize_motor("2", &m2d_); break;
+      case 2: initialize_motor("3", &m3d_); break;
+      case 3: initialize_motor("4", &m4d_); break;
+      case 4: initialize_motor("5", &m5d_); break;
+      case 5: initialize_motor("6", &m6d_); break;
+      case 6: initialize_motor("7", &m7d_); break;
+      case 7: initialize_motor("8", &m8d_); break;
+    }
+  }
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
   state_.pn = 0.0f;
@@ -53,15 +82,15 @@ EquationsOfMotion::EquationsOfMotion() :
   state_.psi = 0.0*3.141592653/180.0;
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
-  if (num_motors == 2)
+  if (num_motors_ == 2)
     motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback2, this);
-  else if (num_motors == 3)
+  else if (num_motors_ == 3)
     motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback3, this);
-  else if (num_motors == 4)
+  else if (num_motors_ == 4)
     motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback4, this);
-  else if (num_motors == 6)
+  else if (num_motors_ == 6)
     motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback6, this);
-  else if (num_motors == 8)
+  else if (num_motors_ == 8)
     motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&EquationsOfMotion::motorCommandCallback8, this);
   else
     ROS_ERROR("PARAM 'num_motors' IS FAULTY. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
@@ -69,15 +98,15 @@ EquationsOfMotion::EquationsOfMotion() :
   truth_publisher_ = nh_.advertise<pegasus::VehicleState>("/pegasus_sim/truth",1);
 
   //******************** CLASS VARIABLES *******************//
-  if (num_motors == 2)
+  if (num_motors_ == 2)
     motors_ = new pegasus::motor_struct_2;
-  else if (num_motors == 3)
+  else if (num_motors_ == 3)
     motors_ = new pegasus::motor_struct_3;
-  else if (num_motors == 4)
+  else if (num_motors_ == 4)
     motors_ = new pegasus::motor_struct_4;
-  else if (num_motors == 6)
+  else if (num_motors_ == 6)
     motors_ = new pegasus::motor_struct_6;
-  else if (num_motors == 8)
+  else if (num_motors_ == 8)
     motors_ = new pegasus::motor_struct_8;
   else
     ROS_ERROR("THE STRUCT 'motors_' WAS NOT INITIALIZED. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
@@ -92,13 +121,13 @@ EquationsOfMotion::EquationsOfMotion() :
   update_viz_timer_ = nh_.createWallTimer(ros::WallDuration(1.0/update_viz_rate), &EquationsOfMotion::updateViz, this);
 
   //********************** FUNCTIONS ***********************//
-  addUncertainty(&mass_);
-  addUncertainty(&Jx_);
-  addUncertainty(&Jy_);
-  addUncertainty(&Jz_);
-  addUncertainty(&Jxy_);
-  addUncertainty(&Jxz_);
-  addUncertainty(&Jyz_);
+  // addUncertainty(&mass_);
+  // addUncertainty(&Jx_);
+  // addUncertainty(&Jy_);
+  // addUncertainty(&Jz_);
+  // addUncertainty(&Jxy_);
+  // addUncertainty(&Jxz_);
+  // addUncertainty(&Jyz_);
 }
 EquationsOfMotion::~EquationsOfMotion()
 {
@@ -171,6 +200,25 @@ void EquationsOfMotion::addUncertainty(float* var)
 {
   float random = ((float) rand()/RAND_MAX);
   *var =  *var + (random*2.0*alpha_ - alpha_)*(*var);
+}
+void EquationsOfMotion::initialize_motor(std::string i, pegasus::motor_description &md)
+{
+  bool ccw;
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/x",md->x)))
+    ROS_WARN("No param named 'm" + i + "/x");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/y",md->y)))
+    ROS_WARN("No param named 'm" + i + "/y");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/z",md->z)))
+    ROS_WARN("No param named 'm" + i + "/z");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tx",md->Tx)))
+    ROS_WARN("No param named 'm" + i + "/Tx");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Ty",md->Ty)))
+    ROS_WARN("No param named 'm" + i + "/Ty");
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tz",md->Tz)))
+    ROS_WARN("No param named 'm" + i + "/Tz");\
+  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/ccw",ccw)))
+    ROS_WARN("No param named 'm" + i + "/ccw");
+  md->dir = ccw ? 1.0f : -1.0f;
 }
 } // end namespace pegasus_sim
 

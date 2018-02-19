@@ -11,7 +11,7 @@ namespace pegasus
 {
   struct motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     float m1;
     float m2;
@@ -83,7 +83,7 @@ namespace pegasus
 
   struct motor_struct_2 : public motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     motor_struct_2()
     {
@@ -105,7 +105,7 @@ namespace pegasus
   };
   struct motor_struct_3 : public motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     motor_struct_3()
     {
@@ -129,7 +129,7 @@ namespace pegasus
   };
   struct motor_struct_4 : public motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     motor_struct_4()
     {
@@ -155,7 +155,7 @@ namespace pegasus
   };
   struct motor_struct_6 : public motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     motor_struct_6()
     {
@@ -185,7 +185,7 @@ namespace pegasus
   };
   struct motor_struct_8 : public motor_struct
   {
-    //*********************** VARIABLE ***********************//
+    //*********************** VARIABLES **********************//
     // EDIT EVERY FUNCTION IF YOU ADD A VARIABLE TO THE STRUCT
     motor_struct_8()
     {
@@ -216,6 +216,26 @@ namespace pegasus
       m7 = msg_in->m7;
       m8 = msg_in->m8;
     }
+  };
+  struct motor_description
+  {
+    //*********************** VARIABLES **********************//
+    float x;      // x position of the motor
+    float y;      // y position of the motor
+    float z;      // z position of the motor
+    float dir;    // direction of the motor, 1.0 or -1.0
+    float Tx;     // component of the thrust and torque in the x direction
+    float Ty;     // component of the thrust and torque in the y direction
+    float Tz;     // component of the thrust and torque in the z direction
+
+    motor_description()
+    {
+
+    }
+    //****************** OPERATOR FUNCTIONS ******************//
+
+    //********************** FUNCTIONS ***********************//
+
   };
 } // end namespace pegasus
 

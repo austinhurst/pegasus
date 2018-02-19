@@ -31,6 +31,7 @@ private:
   //******************** CLASS VARIABLES *******************//
   float alpha_;                // uncertainty level (0.1 is 10% uncertainty)
 protected:
+  int num_motors_;            // number of motors
   float g_;                   // value of gravity
   float mass_;                // mass of vehicle in Kg
   float Jx_;                  // moment  of inertia about i^b in Kg*m^2
@@ -43,6 +44,23 @@ protected:
   float S_;                   // area of the flate plate assumption
   float c_;                   // chord of the flat plate assumption
   float b_;                   // span of the flat plate assumption
+  float K_delta_t_;           // RPM/throttle percentage
+  float KQ_;                  // Propellor Torque constant
+  float Vb_;                  // Battery Voltage
+  float Kv_;                  // RPM per Volt
+  float Rm_;                  // Resistance, Ohms
+  float i0_;                  // No load current, Amps
+  float Dp_;                  // Diameter of the propellor, INCHES
+
+  // Motor descriptions
+  pegasus::motor_description m1d_;
+  pegasus::motor_description m2d_;
+  pegasus::motor_description m3d_;
+  pegasus::motor_description m4d_;
+  pegasus::motor_description m5d_;
+  pegasus::motor_description m6d_;
+  pegasus::motor_description m7d_;
+  pegasus::motor_description m8d_;
 
   // Truth Variables
   pegasus::state_struct state_;
@@ -76,6 +94,7 @@ private:
   ros::WallTimer update_viz_timer_;
 
   //********************** FUNCTIONS ***********************//
+  void initialize_motor(std::string i, pegasus::motor_description &md);
   void addUncertainty(float* var);
 protected:
   virtual pegasus::state_struct derivative(pegasus::state_struct state);

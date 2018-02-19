@@ -11,17 +11,18 @@ SimpleDynamicModel::SimpleDynamicModel()
   if (!(ros::param::get("sim/wind/w_ds",w_ds_)))
     ROS_WARN("No param named 'w_ds'");
 
-  float det_J = Jx_*(Jy_*Jz_ - Jyz_*Jyz_) - Jxy_*(Jxy_*Jz_ + Jxz_*Jyz_) - Jxz_*(Jxy_*Jyz_ + Jxz_*Jy_);
-  invJ11_ = (Jy_ *Jz_  - Jyz_*Jyz_)/det_J;
-  invJ12_ = (Jxy_*Jz_  + Jxz_*Jyz_)/det_J;
-  invJ13_ = (Jxy_*Jyz_ + Jxz_*Jy_ )/det_J;
-  invJ21_ = invJ12_;
-  invJ22_ = (Jx_ *Jz_  - Jxz_*Jxz_)/det_J;
-  invJ23_ = (Jx_ *Jyz_ + Jxy_*Jxz_)/det_J;
-  invJ31_ = invJ13_;
-  invJ32_ = invJ23_;
-  invJ33_ = (Jx_ * Jy_ - Jxy_*Jxy_)/det_J;
-  half_rho_S_   = 0.5f*rho_*S_;
+  float det_J  = Jx_*(Jy_*Jz_ - Jyz_*Jyz_) - Jxy_*(Jxy_*Jz_ + Jxz_*Jyz_) - Jxz_*(Jxy_*Jyz_ + Jxz_*Jy_);
+  invJ11_      = (Jy_ *Jz_  - Jyz_*Jyz_)/det_J;
+  invJ12_      = (Jxy_*Jz_  + Jxz_*Jyz_)/det_J;
+  invJ13_      = (Jxy_*Jyz_ + Jxz_*Jy_ )/det_J;
+  invJ21_      = invJ12_;
+  invJ22_      = (Jx_ *Jz_  - Jxz_*Jxz_)/det_J;
+  invJ23_      = (Jx_ *Jyz_ + Jxy_*Jxz_)/det_J;
+  invJ31_      = invJ13_;
+  invJ32_      = invJ23_;
+  invJ33_      = (Jx_ * Jy_ - Jxy_*Jxy_)/det_J;
+  half_rho_S_  = 0.5f*rho_*S_;
+  mg_          = mass_*g_;
 }
 pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 {
@@ -45,12 +46,13 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 
   //********** FORCES AND MOMENTS *************//
   // Force due to grvity
-  float fx_g = -mass_*g_*s_theta;
-  float fy_g =  mass_*g_*c_theta*s_phi;
-  float fz_g =  mass_*g_*c_theta*c_phi;
+  float fx_g = mg_*Rb_v[2][0];
+  float fy_g = mg_*Rb_v[2][1];
+  float fz_g = mg_*Rb_v[2][2];
 
   // Force due to wind
   float fx_w, fy_w, fz_w, l_w, m_w, n_w;
+
   // Compute wind in body frame
   float w_x = w_ns_*Rb_v[0][0] + w_es_*Rb_v[1][0] + w_ds_*Rb_v[2][0] + w_xg_;
   float w_y = w_ns_*Rb_v[0][1] + w_es_*Rb_v[1][1] + w_ds_*Rb_v[2][1] + w_yg_;
@@ -94,6 +96,7 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
     float sgn_gamma = (gamma == 0.0f) ? 0.0f : gamma/fabs(gamma);
     float sgn_wr    = (wr == 0.0f) ? 0.0f : wr/fabs(wr);
 
+    // Compute Coefficients
     float CL_alpha = 2.0f*s_alpha*s_alpha*c_alpha*sgn_alpha;
     float CD_alpha = 2.0f*powf(s_alpha,3.0f);
     float CM_alpha = -s_alpha*s_alpha*sgn_alpha;
@@ -128,6 +131,30 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
   m_p  = 0.0f;
   n_p  = 0.0f;
 
+  for (int ii = 0; ii < num_motors_; ii++)
+  {
+    float delta_m = motors_->m1;
+    float omega, i, Qm, P_shaft, T, Q;
+    // Model of a DC Motor
+    Ap      = pi*D^2/4;
+    omega   = K_delta_t_*delta_m;
+    i       = (Vb_ - omega/Kv_)/R_;
+    Qm      = (i-i0_)/(Kv_*pi/30.0);
+    P_shaft = Qm*omega*pi/30.0;
+
+    // Momentum Theory
+    T = pow(P_shaft*P_shaft*2.0f*rho_*Ap, 1.0f/3.0f);
+    Q = KQ_*omega*omega*m1d_->dir;
+
+    // Put the Forces and Torques into the correct orientation
+    fx_p += T*m1d_.Tx;
+    fy_p += T*m1d_.Ty;
+    fz_p += T*m1d_.Tz;
+    l_p  += T*m1d_.Tz*.m1d_.y + T*m1d_.Ty*m1d_.z + Q*m1d_.Tx*m1d_.dir;
+    m_p  += T*m1d_.Tz*.m1d_.x + T*m1d_.Tx*m1d_.z + Q*m1d_.Ty*m1d_.dir;
+    n_p  += T*m1d_.Tx*.m1d_.y + T*m1d_.Ty*m1d_.x + Q*m1d_.Tz*m1d_.dir;
+  }
+
   // Total Forces
   float fx = fx_g + fx_w + fx_p;
   float fy = fy_g + fy_w + fy_p;
@@ -141,9 +168,9 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
 
   // KINEMATICS
   // (pn_dot, pe_dot, pd_dot)^T = Rb_v*(u, v, w)^T
-  derivative_of.pn = c_theta*c_psi*s.u + (s_phi*s_theta*c_psi-c_phi*s_psi)*s.v + (c_phi*s_theta*c_psi+s_phi*s_psi)*s.w;
-  derivative_of.pe = c_theta*s_psi*s.u + (s_phi*s_theta*s_psi-c_phi*c_psi)*s.v + (c_phi*s_theta*s_psi+s_phi*c_psi)*s.w;
-  derivative_of.pd =      -s_theta*s.u +                     s_phi*c_theta*s.v +                     c_phi*c_theta*s.w;
+  derivative_of.pn = Rb_v[0][0]*s.u + Rb_v[0][1]*s.v + Rb_v[0][2]*s.w;
+  derivative_of.pe = Rb_v[1][0]*s.u + Rb_v[1][1]*s.v + Rb_v[1][2]*s.w;
+  derivative_of.pd = Rb_v[2][0]*s.u + Rb_v[2][1]*s.v + Rb_v[2][2]*s.w;
 
   // solve for (phi_dot, theta_dot, psi_dot)^T -->  (p, q, r)^T = (phi_dot, 0, 0)^T + Rv2_b*(0, theta_dot, 0)^T + Rv1_b*(0, 0, psi_dot)^T
   float t_theta       = tanf(s.theta);

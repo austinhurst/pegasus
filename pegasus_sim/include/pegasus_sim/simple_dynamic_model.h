@@ -29,6 +29,7 @@ private:
   float w_yg_;
   float w_zg_;
   float half_rho_S_;
+  float mg_;
 
 };// end class SimpleDynamicModel
 } // end namespace pegasus_sim
