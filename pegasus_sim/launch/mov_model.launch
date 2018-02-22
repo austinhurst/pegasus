@@ -1,21 +1,24 @@
 <launch>
-  <param name="simulating" type="bool" value="true"   />
-  <param name="robot_description" textfile="$(find pegasus_sim)/viz/qcopter.urdf"  />
+  <param name="simulating" type="bool" value="true" />
+  <param name="robot_description" textfile="$(find pegasus_sim)/viz/qcopter.urdf"    />
+  
+  <group ns="rosflight">
+    <node name="naze"  pkg="rosflight"  type="rosflight_io" output="screen"          />
+  </group>
+
   <group ns="pegasus">
-
-    <rosparam command="load" file="$(find pegasus)/param/vehicle_description.yaml"  />
-
-    <rosparam command="load" file="$(find pegasus)/param/controller_params.yaml"  />
-    <rosparam command="load" file="$(find pegasus)/param/estimator_params.yaml"  />
-    <rosparam command="load" file="$(find pegasus)/param/ground_station_params.yaml"  />
-    <rosparam command="load" file="$(find pegasus)/param/rx_settings.yaml"  />
-    <node name="controller" pkg="pegasus" type="controller" output="screen"   />
-    <node name="estimator" pkg="pegasus" type="estimator" output="screen"   />
+    <rosparam command="load" file="$(find pegasus)/param/vehicle_description.yaml"   />
+    <rosparam command="load" file="$(find pegasus)/param/controller_params.yaml"     />
+    <rosparam command="load" file="$(find pegasus)/param/estimator_params.yaml"      />
+    <rosparam command="load" file="$(find pegasus)/param/ground_station_params.yaml" />
+    <rosparam command="load" file="$(find pegasus)/param/rx_settings.yaml"           />
+    <node name="controller" pkg="pegasus" type="controller" output="screen"          />
+    <node name="estimator" pkg="pegasus" type="estimator" output="screen"            />
   </group>
   <group ns="pegasus_sim">
-    <rosparam command="load" file="$(find pegasus_sim)/param/simulation_params.yaml"  />
-    <node name="eom" pkg="pegasus_sim" type="equations_of_motion" output="screen"   />
-    <node name="sensors" pkg="pegasus_sim" type="sensor_simulation" output="screen"   />
+    <rosparam command="load" file="$(find pegasus_sim)/param/simulation_params.yaml" />
+    <node name="eom" pkg="pegasus_sim" type="equations_of_motion" output="screen"    />
+    <node name="sensors" pkg="pegasus_sim" type="sensor_simulation" output="screen"  />
   </group>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pegasus_sim)/viz/qcopter.rviz" required="true"/>
 </launch>

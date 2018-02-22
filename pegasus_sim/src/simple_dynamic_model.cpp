@@ -120,8 +120,10 @@ pegasus::state_struct SimpleDynamicModel::derivative(pegasus::state_struct s)
     fx_w = -c_alpha*fd_alpha + s_alpha*fl_alpha;
     fy_w = -c_gamma*fd_gamma + s_gamma*fl_gamma;
     fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma;
-    l_w  = -m_gamma;
-    m_w  =  m_alpha;
+    l_w  =  0.0f;
+    m_w  =  0.0f;
+    // l_w  = -m_gamma;
+    // m_w  =  m_alpha;
     n_w  =  0.0f;
   }
   // Force due to Propultion

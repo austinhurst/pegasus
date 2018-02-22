@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   sensor_msgs
+  rosflight_msgs
+  rosflight
   message_generation
 )
 
@@ -116,7 +118,7 @@ generate_messages(
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES pegasus
-   CATKIN_DEPENDS roscpp std_msgs sensor_msgs tf message_runtime
+   CATKIN_DEPENDS message_runtime roscpp std_msgs sensor_msgs tf rosflight_msgs rosflight
 #  DEPENDS system_lib
 )
 
@@ -158,6 +160,7 @@ add_executable(controller
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
+add_dependencies(controller pegasus_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(controller
@@ -181,6 +184,7 @@ add_executable(estimator
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(estimator ${catkin_EXPORTED_TARGETS})
+add_dependencies(estimator pegasus_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(estimator

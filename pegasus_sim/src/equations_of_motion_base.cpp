@@ -159,12 +159,12 @@ void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
 {
   // Pull in State (truth), translate to quaternion, broadcast tf
   odom_trans_.header.stamp = ros::Time::now();
-  odom_trans_.transform.translation.x =  state_.pe;
-  odom_trans_.transform.translation.y =  state_.pn;
-  odom_trans_.transform.translation.z = -state_.pd;
-  // odom_trans_.transform.translation.x =  0.0;
-  // odom_trans_.transform.translation.y =  0.0;
-  // odom_trans_.transform.translation.z =  0.0;
+  // odom_trans_.transform.translation.x =  state_.pe;
+  // odom_trans_.transform.translation.y =  state_.pn;
+  // odom_trans_.transform.translation.z = -state_.pd;
+  odom_trans_.transform.translation.x =  0.0;
+  odom_trans_.transform.translation.y =  0.0;
+  odom_trans_.transform.translation.z =  0.0;
   // Euler Angles in NED to Quaternion in NED to Quaternion in XYZ
   float qx,qy,qz,qw;
   qx =   cosf(state_.psi/2.0f)*sinf(state_.theta/2.0f)*cosf(state_.phi/2.0f)\
