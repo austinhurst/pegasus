@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <ros/ros.h>
+#include <pegasus/gps_struct.h>
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
 #include <pegasus/Sonar.h>
@@ -33,6 +34,7 @@ protected:
   //******************** CLASS VARIABLES *******************//
   // Message Variables
   pegasus::state_struct truth_;
+  pegasus::gps_struct gps_converter_;
   pegasus::Sonar sonar_msg_;
   pegasus::GPS gps_msg_;
   pegasus::Barometer barometer_msg_;

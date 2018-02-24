@@ -6,9 +6,9 @@ vehicle_description:
   Jx: 1.0                         # moment  of inertia about i^b in Kg*m^2
   Jy: 1.0                         # moment  of inertia about j^b in Kg*m^2
   Jz: 1.0                         # moment  of inertia about k^b in Kg*m^2
-  Jxy: 0.1                        # product of inertia about i^b in Kg*m^2
-  Jxz: 0.1                        # product of inertia about j^b in Kg*m^2
-  Jyz: 0.1                        # product of inertia about k^b in Kg*m^2
+  Jxy: 0.1                        # product of inertia about ij  in Kg*m^2
+  Jxz: 0.1                        # product of inertia about ik  in Kg*m^2
+  Jyz: 0.1                        # product of inertia about jk  in Kg*m^2
   rho: 1.225                      # density of air in kg/m^3
   S: 0.004                        # area of flate plate assumption in m^2
   b: 0.04                         # span of flate plate assumption in m
@@ -19,7 +19,7 @@ vehicle_description:
     KQ: 0.011                     # Propellor Torque constant
     Vb: 11.1                      # Battery Voltage
     Kv: 2300                      # RPM per Volt
-    Rm: 1.02                       # Resistance, Ohms
+    Rm: 1.02                      # Resistance, Ohms
     i0: .8                        # No load current, Amps
     Dp: 5                         # Diameter of the propellor, INCHES
 

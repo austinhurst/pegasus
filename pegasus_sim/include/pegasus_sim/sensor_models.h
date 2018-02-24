@@ -16,6 +16,18 @@ private:
   virtual void sendGPS(const ros::TimerEvent& event);
   virtual void sendBarometer(const ros::TimerEvent& event);
 
+  // GPS Variables
+  float nu_n_;
+  float nu_e_;
+  float nu_h_;
+  float Ts_gps_;
+  float sigma_gps_n_;
+  float sigma_gps_e_;
+  float sigma_gps_h_;
+  float sigma_gps_V_;
+  float k_GPS_;
+  
+
 };// end class SensorModels
 } // end namespace pegasus_sim
 

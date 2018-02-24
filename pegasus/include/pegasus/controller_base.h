@@ -10,9 +10,10 @@
 #include <string>
 #include <ros/ros.h>
 #include <pegasus/VehicleState.h>
-#include <pegasus/RX8.h>
 #include <pegasus/state_struct.h>
 #include <pegasus/motor_struct.h>
+
+#include <rosflight_msgs/RCRaw.h>
 
 
 #define ANGLE_MODE 0
@@ -108,7 +109,7 @@ private:
 
   //***************** CALLBACKS AND TIMERS *****************//
   void vehicleStateCallback(const VehicleStateConstPtr &msg);
-  void rxCallback(const RX8ConstPtr &msg);
+  void rxCallback(const rosflight_msgs::RCRaw &msg);
   void serviceAuxChannels(const ros::TimerEvent& event);
   ros::Timer aux_timer_;
 protected:

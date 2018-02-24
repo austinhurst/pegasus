@@ -1,6 +1,6 @@
 #include "pegasus/controller_base.h"
 
-#include "pegasus/pd.h"
+#include "pegasus/pid.h"
 
 namespace pegasus
 {
@@ -72,16 +72,16 @@ void Controller::vehicleStateCallback(const VehicleStateConstPtr &msg)
 {
   state_.msg2struct(msg);
 }
-void Controller::rxCallback(const RX8ConstPtr &msg)
+void Controller::rxCallback(const rosflight_msgs::RCRaw &msg)
 {
-  rx_[0] = msg->ch1;
-  rx_[1] = msg->ch2;
-  rx_[2] = msg->ch3;
-  rx_[3] = msg->ch4;
-  rx_[4] = msg->ch5;
-  rx_[5] = msg->ch6;
-  rx_[6] = msg->ch7;
-  rx_[7] = msg->ch8;
+  rx_[0] = msg.values[0];
+  rx_[1] = msg.values[1];
+  rx_[2] = msg.values[2];
+  rx_[3] = msg.values[3];
+  rx_[4] = msg.values[4];
+  rx_[5] = msg.values[5];
+  rx_[6] = msg.values[6];
+  rx_[7] = msg.values[7];
 }
 void Controller::buildStickMap()
 {
@@ -391,8 +391,8 @@ int main(int argc, char** argv)
   std::string control_type;
   if (!(ros::param::get("control_type",control_type)))
     ROS_WARN("No param named 'control_type'");
-  if (control_type == "PD")
-    controller_obj = new pegasus::PD;
+  if (control_type == "PID")
+    controller_obj = new pegasus::PID;
   else
     ROS_ERROR("NO CONTROLLER INITIALIZED");
 

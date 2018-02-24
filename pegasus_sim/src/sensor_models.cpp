@@ -39,14 +39,21 @@ void SensorModels::sendIMU(const ros::TimerEvent& event)
 void SensorModels::sendGPS(const ros::TimerEvent& event)
 {
   // Implement GPS Model Here
-  gps_msg_.fix = true;
-  gps_msg_.NumSat = 1;
-  gps_msg_.latitude = 0.0;
-  gps_msg_.longitude = 0.0;
-  gps_msg_.altitude = 0.0;
-  gps_msg_.speed = 0.0;
+  double lat_N, lon_E, h_M;
+  double N = (double) truth_.pn;
+  double E = (double) truth_.pe;
+  double D = (double) truth_.pd;
+
+  gps_converter_.ned2gps(N, E, D, lat_N, lon_E, h_M);
+
+  gps_msg_.fix           = true;
+  gps_msg_.NumSat        = 1;
+  gps_msg_.latitude      = lat_N;
+  gps_msg_.longitude     = lon_E;
+  gps_msg_.altitude      = h_M;
+  gps_msg_.speed         = 0.0;
   gps_msg_.ground_course = 0.0;
-  gps_msg_.covariance = 0.0;
+  gps_msg_.covariance    = 0.0;
 
   gps_publisher_.publish(gps_msg_);
 }

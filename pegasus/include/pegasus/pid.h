@@ -1,19 +1,19 @@
-#ifndef PD_H
-#define PD_H
+#ifndef PID_H
+#define PID_H
 
 #include <pegasus/controller_base.h>
 
 namespace pegasus
 {
-class PD : public Controller
+class PID : public Controller
 {
 public:
-  PD();
+  PID();
 
 private:
   virtual void control(const ros::TimerEvent& event);
 
-};// end class PD
+};// end class PID
 } // end namespace pegasus
 
-#endif // PD_H
+#endif // PID_H

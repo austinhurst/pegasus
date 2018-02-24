@@ -1,13 +1,13 @@
-#include "pegasus/pd.h"
+#include "pegasus/pid.h"
 
 namespace pegasus
 {
-PD::PD()
+PID::PID()
 {
   // SETUP THE CONTROLLER HERE
 
 }
-void PD::control(const ros::TimerEvent& event)
+void PID::control(const ros::TimerEvent& event)
 {
   ros::Time new_time = ros::Time::now();
   mapControlChannels();
@@ -19,7 +19,7 @@ void PD::control(const ros::TimerEvent& event)
 
   if (flight_mode_ == ANGLE_MODE)
   {
-    
+
   }
   else if (flight_mode_ == RATES_MODE)
   {

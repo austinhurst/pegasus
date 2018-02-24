@@ -59,7 +59,6 @@ add_message_files(
  MotorCommand4.msg
  MotorCommand6.msg
  MotorCommand8.msg
- RX8.msg
  Barometer.msg
  GPS.msg
  Sonar.msg
@@ -148,7 +147,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(controller
   src/controller_base.cpp
-  src/pd.cpp
+  src/pid.cpp
 )
 
 ## Rename C++ executable without prefix

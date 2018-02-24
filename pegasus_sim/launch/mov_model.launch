@@ -1,6 +1,10 @@
 <launch>
   <param name="simulating" type="bool" value="true" />
   <param name="robot_description" textfile="$(find pegasus_sim)/viz/qcopter.urdf"    />
+  <param name="latitudeN0" type="double" value="40.2673491"                          />
+  <param name="longitudeE0" type="double" value="-111.6354615"                       />
+  <param name="heightM0" type="double" value="1500.0"                                />
+
   
   <group ns="rosflight">
     <node name="naze"  pkg="rosflight"  type="rosflight_io" output="screen"          />
