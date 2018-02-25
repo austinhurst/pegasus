@@ -72,11 +72,20 @@ SimSensors::SimSensors() :
   if (use_imu)
     imu_timer_       = nh_.createTimer(ros::Duration(1.0/imu_rate), &SimSensors::sendIMU, this);
   //********************** FUNCTIONS ***********************//
-
 }
 SimSensors::~SimSensors()
 {
 
+}
+float SimSensors::rnd()
+{
+  return ((float) rand()/(RAND_MAX));
+}
+float SimSensors::norm_rnd(float mu, float sigma)
+{
+  float U = rnd();
+  float V = rnd();
+  return sqrtf(-2.0f*log(U))*cosf(2.0f*M_PI*V)*sigma + mu;
 }
 void SimSensors::sendSonar(const ros::TimerEvent& event)
 {

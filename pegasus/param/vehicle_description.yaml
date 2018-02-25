@@ -65,6 +65,11 @@ vehicle_description:
       sonar_rate: 20.0            # update rate (Hz)
     gps:
       gps_rate: 1.0               # update rate (Hz)
+      sigma_gps_n: 2.1            # GPS standard deviation in the north direction (meters)
+      sigma_gps_e: 2.1            # GPS standard deviation in the north direction (meters)
+      sigma_gps_h: 4.0            # GPS standard deviation in the height direction (meters)
+      sigma_gps_V: 0.075          # GPS standard deviation for velocity (meters/sec)
+      k_GPS: 16000.0              # 1/tau, the time constant of the Gauss-Markov noise process
     imu:
       imu_rate: 200.0             # update rate (Hz)
     barometer:

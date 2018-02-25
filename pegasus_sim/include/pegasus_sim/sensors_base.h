@@ -2,6 +2,7 @@
 #define SENSORS_BASE_H
 
 #include <stdlib.h>
+#include <math.h>
 #include <ros/ros.h>
 #include <pegasus/gps_struct.h>
 #include <pegasus/VehicleState.h>
@@ -55,7 +56,8 @@ protected:
   ros::Timer barometer_timer_;
 
   //********************** FUNCTIONS ***********************//
-
+  float rnd();
+  float norm_rnd(float mu, float sigma);
 };// end class SimSensors
 } // end namespace pegasus_sim
 
