@@ -2,13 +2,15 @@
 #define SENSOR_MODELS_H
 
 #include <pegasus_sim/sensors_base.h>
+#include <pegasus_sim/forces_and_moments.h>
 
 namespace pegasus_sim
 {
 class SensorModels : public SimSensors
 {
 public:
-  SensorModels();
+  SensorModels(ForcesAndMoments* f_and_m_ptr);
+  ~SensorModels();
 
 private:
   virtual void sendSonar(const ros::TimerEvent& event);
@@ -26,6 +28,7 @@ private:
   float  sigma_gps_V_;
   float  K_GPS_;
 
+  // Accelerometer Variables
 
 };// end class SensorModels
 } // end namespace pegasus_sim

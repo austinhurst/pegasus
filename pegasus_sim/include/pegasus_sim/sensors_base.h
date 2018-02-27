@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <ros/ros.h>
+#include <pegasus_sim/forces_and_moments.h>
 #include <pegasus/gps_struct.h>
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
@@ -40,6 +41,7 @@ protected:
   pegasus::GPS gps_msg_;
   pegasus::Barometer barometer_msg_;
   sensor_msgs::Imu imu_msg_;
+  ForcesAndMoments* f_and_m_obj_;
 
 private:
   //***************** CALLBACKS AND TIMERS *****************//

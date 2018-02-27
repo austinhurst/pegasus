@@ -2,7 +2,7 @@
 
 namespace pegasus_sim
 {
-SensorModels::SensorModels()
+SensorModels::SensorModels(ForcesAndMoments* f_and_m_ptr)
 {
   // GPS Parameters
   float gps_rate, k_GPS;
@@ -22,6 +22,12 @@ SensorModels::SensorModels()
   nu_n_ = 0.0f;
   nu_e_ = 0.0f;
   nu_h_ = 0.0f;
+
+  f_and_m_obj_ = f_and_m_ptr;
+}
+SensorModels::~SensorModels()
+{
+
 }
 void SensorModels::sendSonar(const ros::TimerEvent& event)
 {
@@ -95,7 +101,7 @@ void SensorModels::sendGPS(const ros::TimerEvent& event)
   gps_converter_.ned2gps(N, E, -H, lat_N, lon_E, h_M);
 
   gps_msg_.fix           = true;
-  gps_msg_.NumSat        = 1;
+  gps_msg_.NumSat        = 4;
   gps_msg_.latitude      = lat_N;
   gps_msg_.longitude     = lon_E;
   gps_msg_.altitude      = h_M;

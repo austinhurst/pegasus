@@ -1,7 +1,5 @@
 #include "pegasus_sim/sensors_base.h"
 
-#include "pegasus_sim/sensor_models.h"
-
 namespace pegasus_sim
 {
 SimSensors::SimSensors() :
@@ -108,16 +106,3 @@ void SimSensors::truthCallback(const pegasus::VehicleState &msg)
   truth_.msg2struct(msg);
 }
 } // end namespace pegasus_sim
-
-//********************************************************//
-//************************ MAIN **************************//
-//********************************************************//
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "sensor_simulation");
-  ros::NodeHandle nh("pegasus_sim");
-
-  pegasus_sim::SensorModels sensors_obj;
-  ros::spin();
-  return 0;
-} // end main
