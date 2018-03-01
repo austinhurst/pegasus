@@ -57,7 +57,7 @@ vehicle_description:
       Tz: -1.0                    # Component of the thrust in the z direction
 
   sensors:
-    use_sonar: true               # true if using a sonar unit
+    use_sonar: false              # true if using a sonar unit
     use_gps: true                 # true if using a gps unit
     use_imu: true                 # true if using an accelerometer and gyro (magnetometer)
     use_barometer: true           # true if using a barometer
@@ -72,5 +72,13 @@ vehicle_description:
       k_GPS: 16000.0              # 1/tau, the time constant of the Gauss-Markov noise process
     imu:
       imu_rate: 200.0             # update rate (Hz)
+      sigma_accel_x: 0.0025       # noise on the accelerometer x axis in units of gravities
+      sigma_accel_y: 0.0025       # noise on the accelerometer y axis in units of gravities
+      sigma_accel_z: 0.0025       # noise on the accelerometer z axis in units of gravities
+      sigma_gyro_x: 0.13          # noise on the gyro x axis in units of deg/sec
+      sigma_gyro_y: 0.13          # noise on the gyro y axis in units of deg/sec
+      sigma_gyro_z: 0.13          # noise on the gyro z axis in units of deg/sec
     barometer:
       barometer_rate: 45.0        # update rate (Hz)
+      bias_gyro: 125              # Barometer bias (Pascals)
+      sigma_baro: 10              # Barometer noise (Pascals)

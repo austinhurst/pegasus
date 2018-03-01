@@ -29,6 +29,21 @@ private:
   float  K_GPS_;
 
   // Accelerometer Variables
+  float mass_;
+  float g_;
+  float sigma_accel_x_;
+  float sigma_accel_y_;
+  float sigma_accel_z_;
+
+  // Gyro Variables
+  float sigma_gyro_x_;
+  float sigma_gyro_y_;
+  float sigma_gyro_z_;
+
+  // Barometer Variables
+  float sigma_baro_;
+  float bias_baro_;
+  float rho_g_;
 
 };// end class SensorModels
 } // end namespace pegasus_sim

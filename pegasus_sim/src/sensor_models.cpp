@@ -1,9 +1,11 @@
-#include "pegasus_sim/sensor_models.h"
+#include <pegasus_sim/sensor_models.h>
 
 namespace pegasus_sim
 {
 SensorModels::SensorModels(ForcesAndMoments* f_and_m_ptr)
 {
+  f_and_m_obj_ = f_and_m_ptr;
+
   // GPS Parameters
   float gps_rate, k_GPS;
   if (!(ros::param::get("/pegasus/vehicle_description/sensors/gps/gps_rate",gps_rate)))
@@ -23,7 +25,42 @@ SensorModels::SensorModels(ForcesAndMoments* f_and_m_ptr)
   nu_e_ = 0.0f;
   nu_h_ = 0.0f;
 
-  f_and_m_obj_ = f_and_m_ptr;
+  // Accelerometer Parameters
+  if (!(ros::param::get("/pegasus/vehicle_description/mass",mass_)))
+    ROS_WARN("No param named 'mass");
+  if (!(ros::param::get("/pegasus/vehicle_description/g",g_)))
+    ROS_WARN("No param named 'g");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_x",sigma_accel_x_)))
+    ROS_WARN("No param named 'sigma_accel_x'");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_y",sigma_accel_y_)))
+    ROS_WARN("No param named 'sigma_accel_y'");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_z",sigma_accel_z_)))
+    ROS_WARN("No param named 'sigma_accel_z'");
+  sigma_accel_x_ *= g_;
+  sigma_accel_y_ *= g_;
+  sigma_accel_z_ *= g_;
+
+  // Gyro Parameters
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_x",sigma_gyro_x_)))
+    ROS_WARN("No param named 'sigma_gyro_x'");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_y",sigma_gyro_y_)))
+    ROS_WARN("No param named 'sigma_gyro_y'");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/imu/sigma_accel_z",sigma_gyro_z_)))
+    ROS_WARN("No param named 'sigma_gyro_z'");
+  sigma_accel_x_ *= M_PI/180.f;
+  sigma_accel_y_ *= M_PI/180.f;
+  sigma_accel_z_ *= M_PI/180.f;
+
+  // Barometer Parameters
+  float rho;
+  if (!(ros::param::get("/pegasus/vehicle_description/rho",rho)))
+    ROS_WARN("No param named 'rho");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/barometer/sigma_baro",sigma_baro_)))
+    ROS_WARN("No param named 'sigma_baro'");
+  if (!(ros::param::get("/pegasus/vehicle_description/sensors/barometer/bias_baro",bias_baro_)))
+    ROS_WARN("No param named 'bias_baro'");
+  rho_g_ = rho*g_;
+
 }
 SensorModels::~SensorModels()
 {
@@ -38,25 +75,20 @@ void SensorModels::sendSonar(const ros::TimerEvent& event)
 }
 void SensorModels::sendIMU(const ros::TimerEvent& event)
 {
-  // Implement IMU Model Here
-  geometry_msgs::Quaternion q;
-  q.x = 0.0;
-  q.y = 0.0;
-  q.z = 0.0;
-  q.w = 0.0;
-  imu_msg_.orientation = q;
-  imu_msg_.angular_velocity.x = 0.0;
-  imu_msg_.angular_velocity.y = 0.0;
-  imu_msg_.angular_velocity.z = 0.0;
-  imu_msg_.linear_acceleration.x = 0.0;
-  imu_msg_.linear_acceleration.y = 0.0;
-  imu_msg_.linear_acceleration.z = 0.0;
-  for (int i = 0; i < 9; i++)
-  {
-    imu_msg_.orientation_covariance[i] = 0.0;
-    imu_msg_.angular_velocity_covariance[i] = 0.0;
-    imu_msg_.linear_acceleration_covariance[i] = 0.0;
-  }
+  float fx, fy, fz, l, m, n;
+  f_and_m_obj_->getForcesAndMoments(truth_, fx, fy, fz, l, m, n);
+
+  // Gyro
+  imu_msg_.angular_velocity.x    = truth_.p + norm_rnd(0.0f, sigma_gyro_x_);
+  imu_msg_.angular_velocity.y    = truth_.q + norm_rnd(0.0f, sigma_gyro_y_);
+  imu_msg_.angular_velocity.z    = truth_.r + norm_rnd(0.0f, sigma_gyro_z_);
+
+  // Accelerometer
+  imu_msg_.linear_acceleration.x = fx/mass_ + g_*sin(truth_.theta)                 + norm_rnd(0.0f, sigma_accel_x_);
+  imu_msg_.linear_acceleration.y = fy/mass_ - g_*cos(truth_.theta)*sin(truth_.phi) + norm_rnd(0.0f, sigma_accel_y_);
+  imu_msg_.linear_acceleration.z = fz/mass_ - g_*cos(truth_.theta)*cos(truth_.phi) + norm_rnd(0.0f, sigma_accel_z_);
+
+  imu_publisher_.publish(imu_msg_);
 
 }
 void SensorModels::sendGPS(const ros::TimerEvent& event)
@@ -113,7 +145,7 @@ void SensorModels::sendGPS(const ros::TimerEvent& event)
 }
 void SensorModels::sendBarometer(const ros::TimerEvent& event)
 {
-  barometer_msg_.pressure = 0.0;
+  barometer_msg_.pressure = rho_g_*(-truth_.pd) + bias_baro_ + norm_rnd(0.0f, sigma_baro_);
 
   barometer_publisher_.publish(barometer_msg_);
 }
