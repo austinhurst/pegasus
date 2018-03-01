@@ -8,7 +8,7 @@ namespace pegasus_sim
 class DynamicModel : public EquationsOfMotion
 {
 public:
-  DynamicModel(ForcesAndMoments* f_and_m_ptr);
+  DynamicModel();
 
 private:
   virtual pegasus::state_struct derivative(pegasus::state_struct s);

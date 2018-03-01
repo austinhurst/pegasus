@@ -1,13 +1,11 @@
-#include "pegasus_sim/forces_and_moments.h"
+#include <pegasus_sim/flat_momentum.h>
 
 namespace pegasus_sim
 {
-ForcesAndMoments::ForcesAndMoments()
+FlatMomentum::FlatMomentum()
 {
   if (!(ros::param::get("/pegasus/vehicle_description/g",g_)))
     ROS_WARN("No param named 'g");
-  if (!(ros::param::get("/pegasus/vehicle_description/num_motors",num_motors_)))
-    ROS_WARN("No param named 'num_motors");
   if (!(ros::param::get("/pegasus/vehicle_description/mass",mass_)))
     ROS_WARN("No param named 'mass");
   if (!(ros::param::get("/pegasus/vehicle_description/motors/K_delta_t",K_delta_t_)))
@@ -32,66 +30,24 @@ ForcesAndMoments::ForcesAndMoments()
     ROS_WARN("No param named 'b");
   if (!(ros::param::get("/pegasus/vehicle_description/c",c_)))
     ROS_WARN("No param named 'c");
-  if (!(ros::param::get("sim/wind/w_ns",w_ns_)))
-    ROS_WARN("No param named 'w_ns'");
-  if (!(ros::param::get("sim/wind/w_es",w_es_)))
-    ROS_WARN("No param named 'w_es'");
-  if (!(ros::param::get("sim/wind/w_ds",w_ds_)))
-    ROS_WARN("No param named 'w_ds'");
+
   Dp_          = Dp_*0.0254f;
   half_rho_S_  = 0.5f*rho_*S_;
   mg_          = mass_*g_;
   Ap_          = M_PI*Dp_*Dp_/4.0f;
   piD30_       = M_PI/30.0f;
 
-  for (int i = 0; i < num_motors_; i++)
-  {
-    switch (i)
-    {
-      case 0: initialize_motor("1", &m1d_); break;
-      case 1: initialize_motor("2", &m2d_); break;
-      case 2: initialize_motor("3", &m3d_); break;
-      case 3: initialize_motor("4", &m4d_); break;
-      case 4: initialize_motor("5", &m5d_); break;
-      case 5: initialize_motor("6", &m6d_); break;
-      case 6: initialize_motor("7", &m7d_); break;
-      case 7: initialize_motor("8", &m8d_); break;
-    }
-  }
   //************** SUBSCRIBERS AND PUBLISHERS **************//
-  if (num_motors_ == 2)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&ForcesAndMoments::motorCommandCallback2, this);
-  else if (num_motors_ == 3)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&ForcesAndMoments::motorCommandCallback3, this);
-  else if (num_motors_ == 4)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&ForcesAndMoments::motorCommandCallback4, this);
-  else if (num_motors_ == 6)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&ForcesAndMoments::motorCommandCallback6, this);
-  else if (num_motors_ == 8)
-    motor_command_subscriber_=nh_.subscribe("/pegasus/motor_command",1,&ForcesAndMoments::motorCommandCallback8, this);
-  else
-    ROS_ERROR("PARAM 'num_motors' IS FAULTY. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
+
   //******************** CLASS VARIABLES *******************//
-  if (num_motors_ == 2)
-    motors_ = new pegasus::motor_struct_2;
-  else if (num_motors_ == 3)
-    motors_ = new pegasus::motor_struct_3;
-  else if (num_motors_ == 4)
-    motors_ = new pegasus::motor_struct_4;
-  else if (num_motors_ == 6)
-    motors_ = new pegasus::motor_struct_6;
-  else if (num_motors_ == 8)
-    motors_ = new pegasus::motor_struct_8;
-  else
-    ROS_ERROR("THE STRUCT 'motors_' WAS NOT INITIALIZED. POSSIBLY INCOMPATIBLE NUMBER OF MOTORS");
-  ROS_INFO("FORCES AND MOMENTS INITIALIZED");
+
 }
-ForcesAndMoments::~ForcesAndMoments()
+FlatMomentum::~FlatMomentum()
 {
-    delete motors_;
+
 }
-void ForcesAndMoments::getForcesAndMoments(pegasus::state_struct s,\
-                                           float& fx, float& fy, float& fz,\
+void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
+                                           float& fx, float& fy, float& fz,
                                            float& l , float& m , float& n)
 {
   float c_phi   = cosf(s.phi);
@@ -188,6 +144,7 @@ void ForcesAndMoments::getForcesAndMoments(pegasus::state_struct s,\
     fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma;
     l_w  =  0.0f;
     m_w  =  0.0f;
+    // TODO: figure out if these moments are okay or not.
     // l_w  = -m_gamma;
     // m_w  =  m_alpha;
     n_w  =  0.0f;
@@ -244,52 +201,5 @@ void ForcesAndMoments::getForcesAndMoments(pegasus::state_struct s,\
   l  =        l_w  + l_p;
   m  =        m_w  + m_p;
   n  =        n_w  + n_p;
-}
-void ForcesAndMoments::motorCommandCallback2(const pegasus::MotorCommand2ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void ForcesAndMoments::motorCommandCallback3(const pegasus::MotorCommand3ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void ForcesAndMoments::motorCommandCallback4(const pegasus::MotorCommand4ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void ForcesAndMoments::motorCommandCallback6(const pegasus::MotorCommand6ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void ForcesAndMoments::motorCommandCallback8(const pegasus::MotorCommand8ConstPtr &msg)
-{
-  motors_->msg2struct(msg);
-}
-void ForcesAndMoments::initialize_motor(std::string i, pegasus::motor_description* md)
-{
-  bool ccw;
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/x",md->x)))
-    ROS_WARN("No param named 'm%s/x",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/y",md->y)))
-    ROS_WARN("No param named 'm%s/y",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/z",md->z)))
-    ROS_WARN("No param named 'm%s/z",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tx",md->Tx)))
-    ROS_WARN("No param named 'm%s/Tx",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Ty",md->Ty)))
-    ROS_WARN("No param named 'm%s/Ty",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/Tz",md->Tz)))
-    ROS_WARN("No param named 'm%s/Tz",i.c_str());
-  if (!(ros::param::get("/pegasus/vehicle_description/motors/m" + i + "/ccw",ccw)))
-    ROS_WARN("No param named 'm%s/ccw",i.c_str());
-  md->dir = ccw ? -1.0f : 1.0f;
-}
-void ForcesAndMoments::eachTimeStep()
-{
-  // function for calculating parameters only once each timestep
-  // Calculate Wind Gust Speeds
-  w_xg_ = 0.0;
-  w_yg_ = 0.0;
-  w_zg_ = 0.0;
 }
 } // end namespace pegasus_sim

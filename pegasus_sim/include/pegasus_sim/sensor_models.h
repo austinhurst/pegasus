@@ -2,14 +2,13 @@
 #define SENSOR_MODELS_H
 
 #include <pegasus_sim/sensors_base.h>
-#include <pegasus_sim/forces_and_moments.h>
 
 namespace pegasus_sim
 {
 class SensorModels : public SimSensors
 {
 public:
-  SensorModels(ForcesAndMoments* f_and_m_ptr);
+  SensorModels();
   ~SensorModels();
 
 private:

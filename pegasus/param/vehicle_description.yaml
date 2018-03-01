@@ -80,5 +80,5 @@ vehicle_description:
       sigma_gyro_z: 0.13          # noise on the gyro z axis in units of deg/sec
     barometer:
       barometer_rate: 45.0        # update rate (Hz)
-      bias_gyro: 125              # Barometer bias (Pascals)
+      bias_baro: 125              # Barometer bias (Pascals)
       sigma_baro: 10              # Barometer noise (Pascals)

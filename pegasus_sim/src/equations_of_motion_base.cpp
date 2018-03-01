@@ -2,8 +2,7 @@
 
 #include <pegasus_sim/dynamic_model.h>
 #include <pegasus_sim/sensor_models.h>
-#include <pegasus_sim/forces_and_moments.h>
-
+#include <pegasus_sim/flat_momentum.h>
 namespace pegasus_sim
 {
 EquationsOfMotion::EquationsOfMotion() :
@@ -12,6 +11,7 @@ EquationsOfMotion::EquationsOfMotion() :
   //********************** PARAMETERS **********************//
   // Simulation Parameters
   float propogate_rate, update_viz_rate;
+  std::string forces_model_type;
   if (!(ros::param::get("sim/propogate_rate",propogate_rate)))
     ROS_WARN("No param named 'propogate_rate'");
   if (!(ros::param::get("/pegasus/ground_station/update_viz_rate",update_viz_rate)))
@@ -32,6 +32,12 @@ EquationsOfMotion::EquationsOfMotion() :
     ROS_WARN("No param named 'num_motors");
   if (!(ros::param::get("/pegasus/vehicle_description/Jyz",Jyz_)))
     ROS_WARN("No param named 'Jyz");
+  if (!(ros::param::get("sim/forces_model_type",forces_model_type)))
+    ROS_WARN("No param named 'forces_model_type'");
+  if (forces_model_type == "flat_momentum")
+    f_and_m_obj_ = new FlatMomentum();
+  else
+    ROS_ERROR("NO FORCES AND MOMENTUM MODEL INITIALIZED");
 
   // Initial Vehicle State (TODO: Pull in from parameter server)
   state_.pn = 0.0f;
@@ -65,14 +71,13 @@ EquationsOfMotion::EquationsOfMotion() :
 }
 EquationsOfMotion::~EquationsOfMotion()
 {
-
+  delete f_and_m_obj_;
 }
 void EquationsOfMotion::propogate(const ros::TimerEvent&)
 {
   // Runge-Kutta 4th Order - Compute Truth
   ros::Time new_time = ros::Time::now();
   float h = (new_time - last_time_).toSec();
-  f_and_m_obj_->eachTimeStep();
   k1_ = derivative(state_               );
   k2_ = derivative(state_ + k1_*(h/2.0f));
   k3_ = derivative(state_ + k2_*(h/2.0f));
@@ -124,17 +129,14 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "equations_of_motion");
   ros::NodeHandle nh("pegasus_sim");
 
-  pegasus_sim::ForcesAndMoments f_and_m_obj;
   pegasus_sim::EquationsOfMotion *eom_obj;
   std::string model_type;
   if (!(ros::param::get("sim/model_type",model_type)))
     ROS_WARN("No param named 'model_type'");
   if (model_type == "simple")
-    eom_obj = new pegasus_sim::DynamicModel(&f_and_m_obj);
+    eom_obj = new pegasus_sim::DynamicModel();
   else
     ROS_ERROR("NO DYNAMIC MODEL INITIALIZED");
-
-  pegasus_sim::SensorModels sensors_obj(&f_and_m_obj);
 
   ros::spin();
 

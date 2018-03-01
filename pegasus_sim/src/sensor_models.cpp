@@ -2,10 +2,8 @@
 
 namespace pegasus_sim
 {
-SensorModels::SensorModels(ForcesAndMoments* f_and_m_ptr)
+SensorModels::SensorModels()
 {
-  f_and_m_obj_ = f_and_m_ptr;
-
   // GPS Parameters
   float gps_rate, k_GPS;
   if (!(ros::param::get("/pegasus/vehicle_description/sensors/gps/gps_rate",gps_rate)))
@@ -69,6 +67,7 @@ SensorModels::~SensorModels()
 void SensorModels::sendSonar(const ros::TimerEvent& event)
 {
   // Implement Sonar Model Here
+  // TODO
   sonar_msg_.distance = 0.0;
 
   sonar_publisher_.publish(sonar_msg_);

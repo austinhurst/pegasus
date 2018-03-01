@@ -1,4 +1,7 @@
-#include "pegasus_sim/sensors_base.h"
+#include <pegasus_sim/sensors_base.h>
+
+#include <pegasus_sim/flat_momentum.h>
+#include <pegasus_sim/sensor_models.h>
 
 namespace pegasus_sim
 {
@@ -10,6 +13,7 @@ SimSensors::SimSensors() :
   bool use_sonar, use_gps, use_imu, use_barometer;
   float sonar_rate, gps_rate, imu_rate, barometer_rate;
   double latitudeN0, longitudeE0, heightM0;
+  std::string forces_model_type;
   if (!(ros::param::get("/pegasus/vehicle_description/sensors/use_sonar",use_sonar)))
     ROS_WARN("No param named 'use_sonar'");
   else
@@ -44,6 +48,12 @@ SimSensors::SimSensors() :
     ROS_WARN("No param named 'longitudeE0'");
   if (!(ros::param::get("/heightM0",heightM0)))
     ROS_WARN("No param named 'heightM0'");
+  if (!(ros::param::get("sim/forces_model_type",forces_model_type)))
+    ROS_WARN("No param named 'forces_model_type'");
+  if (forces_model_type == "flat_momentum")
+    f_and_m_obj_ = new FlatMomentum();
+  else
+    ROS_ERROR("NO FORCES AND MOMENTUM MODEL INITIALIZED");
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   truth_subscriber_      = nh_.subscribe("truth",1,&SimSensors::truthCallback, this);
@@ -73,7 +83,7 @@ SimSensors::SimSensors() :
 }
 SimSensors::~SimSensors()
 {
-
+  delete f_and_m_obj_;
 }
 float SimSensors::rnd()
 {
@@ -106,3 +116,25 @@ void SimSensors::truthCallback(const pegasus::VehicleState &msg)
   truth_.msg2struct(msg);
 }
 } // end namespace pegasus_sim
+//********************************************************//
+//************************ MAIN **************************//
+//********************************************************//
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "sensors");
+  ros::NodeHandle nh("pegasus_sim");
+
+  pegasus_sim::SimSensors *sensor_obj;
+  std::string model_type;
+  if (!(ros::param::get("sim/sensor_type",model_type)))
+    ROS_WARN("No param named 'sensor_type'");
+  if (model_type == "simple")
+    sensor_obj = new pegasus_sim::SensorModels();
+  else
+    ROS_ERROR("NO DYNAMIC MODEL INITIALIZED");
+
+  ros::spin();
+
+  delete sensor_obj;
+  return 0;
+} // end main

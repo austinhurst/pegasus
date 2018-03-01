@@ -1,4 +1,3 @@
 <launch>
- <node name="naze"  pkg="rosflight"  type="rosflight_io"
- </node>
+ <node name="naze"  pkg="rosflight"  type="rosflight_io"/>
 </launch>

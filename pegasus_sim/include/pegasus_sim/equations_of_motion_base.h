@@ -5,11 +5,11 @@
 #include <string>
 #include <stdlib.h>
 #include <ros/ros.h>
-#include <pegasus_sim/forces_and_moments.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
+#include <pegasus_sim/forces_and_moments_base.h>
 
 namespace pegasus_sim
 {
@@ -29,6 +29,7 @@ private:
   //******************** CLASS VARIABLES *******************//
   float alpha_;                // uncertainty level (0.1 is 10% uncertainty)
 protected:
+  ForcesAndMoments *f_and_m_obj_;
   float mass_;                // Mass of the vehicle
   float Jx_;                  // moment  of inertia about i^b in Kg*m^2
   float Jy_;                  // moment  of inertia about j^b in Kg*m^2
@@ -39,8 +40,6 @@ protected:
   // Truth Variables
   pegasus::state_struct state_;
 
-  ForcesAndMoments* f_and_m_obj_;
-  
 private:
   // RK4 Variables
   pegasus::state_struct k1_;

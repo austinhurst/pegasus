@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   sensor_msgs
   pegasus
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -49,11 +50,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+ FILES
+ Wind.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -70,10 +70,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+ DEPENDENCIES
+ std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -107,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES pegasus_sim
-   CATKIN_DEPENDS roscpp std_msgs tf sensor_msgs pegasus
+   CATKIN_DEPENDS roscpp std_msgs tf sensor_msgs pegasus message_runtime
 #  DEPENDS system_lib
 )
 
@@ -138,9 +138,8 @@ include_directories(
 add_executable(equations_of_motion
   src/equations_of_motion_base.cpp
   src/dynamic_model.cpp
-  src/forces_and_moments.cpp
-  src/sensors_base.cpp
-  src/sensor_models.cpp
+  src/forces_and_moments_base.cpp
+  src/flat_momentum.cpp
   )
 
 ## Rename C++ executable without prefix
@@ -152,9 +151,60 @@ add_executable(equations_of_motion
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(equations_of_motion ${catkin_EXPORTED_TARGETS})
+add_dependencies(equations_of_motion pegasus_sim_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(equations_of_motion
+   ${catkin_LIBRARIES}
+)
+############################################################################################################
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+add_executable(sensors
+  src/sensors_base.cpp
+  src/sensor_models.cpp
+  src/forces_and_moments_base.cpp
+  src/flat_momentum.cpp
+  )
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+add_dependencies(sensors ${catkin_EXPORTED_TARGETS})
+add_dependencies(sensors pegasus_sim_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(sensors
+   ${catkin_LIBRARIES}
+)
+############################################################################################################
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+add_executable(wind
+  src/wind_base.cpp
+  src/dryden.cpp
+  )
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+add_dependencies(wind ${catkin_EXPORTED_TARGETS})
+add_dependencies(wind pegasus_sim_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(wind
    ${catkin_LIBRARIES}
 )
 ############################################################################################################

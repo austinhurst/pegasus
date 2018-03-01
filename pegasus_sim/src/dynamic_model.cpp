@@ -1,10 +1,9 @@
-#include "pegasus_sim/dynamic_model.h"
+#include <pegasus_sim/dynamic_model.h>
 
 namespace pegasus_sim
 {
-DynamicModel::DynamicModel(ForcesAndMoments* f_and_m_ptr)
+DynamicModel::DynamicModel()
 {
-  f_and_m_obj_ = f_and_m_ptr;
 
   float det_J  = Jx_*(Jy_*Jz_ - Jyz_*Jyz_) - Jxy_*(Jxy_*Jz_ + Jxz_*Jyz_) - Jxz_*(Jxy_*Jyz_ + Jxz_*Jy_);
   invJ11_      = (Jy_ *Jz_  - Jyz_*Jyz_)/det_J;
@@ -73,4 +72,4 @@ pegasus::state_struct DynamicModel::derivative(pegasus::state_struct s)
 
   return derivative_of;
 }
-} // end namespace pegasus_simx
+} // end namespace pegasus_sim
