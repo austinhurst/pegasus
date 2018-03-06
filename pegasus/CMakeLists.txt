@@ -62,6 +62,7 @@ add_message_files(
  Barometer.msg
  GPS.msg
  Sonar.msg
+ DesiredControl.msg
 )
 
 ## Generate services in the 'srv' folder

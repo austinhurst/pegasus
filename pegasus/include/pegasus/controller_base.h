@@ -12,6 +12,7 @@
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
 #include <pegasus/motor_struct.h>
+#include <pegasus/DesiredControl.h>
 
 #include <rosflight_msgs/RCRaw.h>
 
@@ -38,6 +39,7 @@ private:
   ros::Subscriber rx_subscriber_;
 
   ros::Publisher motor_command_publisher_;
+  ros::Publisher desired_command_publisher_;
 
   //******************** CLASS VARIABLES *******************//
 protected:
@@ -54,10 +56,10 @@ protected:
   float roll_rate_desired_;
   float pitch_rate_desired_;
 
+  motor_struct *motors_;
+  int num_motors_;
 
 private:
-  motor_struct *motors_;
-
   // rx Channel Variables
   int rx_[8];
   int aileron_stick_;
@@ -68,9 +70,12 @@ private:
   int aux2_stick_;
   int aux3_stick_;
   int aux4_stick_;
-  std::map<int, float> angle_map_;
-  std::map<int, float> rate_map_;
-  std::map<int, float> thrust_map_;
+  std::map<int, float> A_angle_map_;
+  std::map<int, float> E_angle_map_;
+  std::map<int, float> A_rate_map_;
+  std::map<int, float> E_rate_map_;
+  std::map<int, float> R_rate_map_;
+  std::map<int, float> T_map_;
 
   int A_channel_;
   int E_channel_;
@@ -81,11 +86,6 @@ private:
   int aux3_channel_;
   int aux4_channel_;
   int arming_channel_;
-  int num_motors_;
-
-  int min_us_;
-  int mid_us_;
-  int max_us_;
 
   // Arming Aux Channel
   int arm_aux_channel_;
@@ -118,6 +118,7 @@ protected:
   //********************** FUNCTIONS ***********************//
   void pullParameters();
   void publishMotorCommand();
+  void publishDesiredCommand();
   void mapControlChannels();
   void buildStickMap();
   void mapAuxChannels();

@@ -3,3 +3,5 @@ control_rate: 300       # The rate the controller runs at (Hz)
 
 control_type: PID       # Type of Controller
                         # PID - Proportinal Integral Derivative Control
+kP_phi: 1.9071
+kD_phi: 0.1058

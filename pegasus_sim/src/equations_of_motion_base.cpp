@@ -42,7 +42,7 @@ EquationsOfMotion::EquationsOfMotion() :
   // Initial Vehicle State (TODO: Pull in from parameter server)
   state_.pn = 0.0f;
   state_.pe = 0.0f;
-  state_.pd = -3.0f;
+  state_.pd = 0.0f;
   state_.phi = 0.0*3.141592653/180.0;
   state_.theta = 0.0*3.141592653/180.0;
   state_.psi = 0.0*3.141592653/180.0;

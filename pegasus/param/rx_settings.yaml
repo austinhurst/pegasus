@@ -6,16 +6,29 @@ rx:
                               # T = Thrust,   throttle
                               # R = Rudder,   yaw
                               # Number = Aux-Number
-  min_us: 1000                # Lowest signal the tx sends in microseconds.
-  mid_us: 1500                # Middle signal the tx sends in microseconds.
-  max_us: 2000                # Longest signal the tx sends in microseconds.
   aux_rate: 20.               # The rate at which the aux_channels are checked (Hz)
+  aileron:
+    min_us: 1000                # Lowest signal the tx sends in microseconds.
+    mid_us: 1535                # Middle signal the tx sends in microseconds.
+    max_us: 2015                # Longest signal the tx sends in microseconds.
+  elevator:
+    min_us:  925                # Lowest signal the tx sends in microseconds.
+    mid_us: 1396                # Middle signal the tx sends in microseconds.
+    max_us: 1912                # Longest signal the tx sends in microseconds.
+  thrust:
+    min_us:  985                # Lowest signal the tx sends in microseconds.
+    mid_us: 1463                # Middle signal the tx sends in microseconds.
+    max_us: 1960                # Longest signal the tx sends in microseconds.
+  rudder:
+    min_us:  925                # Lowest signal the tx sends in microseconds.
+    mid_us: 1527                # Middle signal the tx sends in microseconds.
+    max_us: 1985                # Longest signal the tx sends in microseconds.
 
   arming:
     arm_aux_channel: 1        # The auxilary channel used to arm and disarm the vehicle (no matter the channel mapping)
-    min_arm_us: 1750          # In order for motors to spin, the 'arming/aux_channel' must send a minimum of this us.
-    max_arm_us: 2000          # In order for motors to spin, the 'arming/aux_channel' must send a maximum of this us.
-    arm_throttle_max: 1025    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
+    min_arm_us: 950          # In order for motors to spin, the 'arming/aux_channel' must send a minimum of this us.
+    max_arm_us: 1050          # In order for motors to spin, the 'arming/aux_channel' must send a maximum of this us.
+    arm_throttle_max: 1005    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
                               # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.
   modes:
     mode_aux_channel: 2       # Channel that selects the flight mode.
