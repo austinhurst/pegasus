@@ -58,6 +58,7 @@ protected:
 
   motor_struct *motors_;
   int num_motors_;
+  float piD180_;
 
 private:
   // rx Channel Variables

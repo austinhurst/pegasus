@@ -18,6 +18,7 @@ Controller::Controller() :
   if (!(ros::param::get("rx/aux_rate",aux_rate)))
     ROS_WARN("No param named 'aux_rate'");
   pullParameters();
+  piD180_ = M_PI/180.0f;
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   vehicle_state_subscriber_ = nh_.subscribe("state_hat",1,&Controller::vehicleStateCallback, this);

@@ -32,13 +32,13 @@ void PID::control(const ros::TimerEvent& event)
   float F = thrust_desired_*4.0f*K1_;
 
   // PHI - PD CONTROL
-  float e_phi     = roll_desired_ - state_.phi;
+  float e_phi     = roll_desired_*piD180_ - state_.phi;
   float tau_phi   = kP_phi_*e_phi  - kD_phi_*state_.p;
 
   float tau_theta = 0.0f;
   float tau_psi   = 0.0f;
-
-  mixMotors4(F, 0.0f, tau_theta, tau_psi);
+  // tau_phi = roll_desired_/60.0f*0.0001*(4.0f*y_*K1_);
+  mixMotors4(F, tau_phi, tau_theta, tau_psi);
   publishMotorCommand();
   publishDesiredCommand();
   last_time_ = new_time;

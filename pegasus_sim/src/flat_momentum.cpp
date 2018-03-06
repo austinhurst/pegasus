@@ -174,6 +174,8 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
       case 7: md = &m8d_; delta_m = motors_->m8; break;
     }
 
+    delta_m  =  delta_m < 0.0f ? 0.0f : delta_m;
+    
     // Model of a DC Motor
     float omega, i, Qm, P_shaft, T, Q;
     omega   = K_delta_t_*delta_m;
