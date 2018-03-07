@@ -15,13 +15,23 @@ private:
   double ts_;
 
   // PHI
-  float e_phi_last_;
   float kP_phi_;
   float kD_phi_;
+
+  // THETA
+  float kP_theta_;
+  float kD_theta_;
+
+  // PSI
+  float kP_psi_;
+  float kD_psi_;
+  float sigma_;
+  float r_last_;
 
 
   // Mixer (TEMP)
   void mixMotors4(float F, float t_phi, float t_theta, float t_psi);
+  float saturate(float value_i, float min, float max);
   float K1_;
   float K2_;
   float x_;

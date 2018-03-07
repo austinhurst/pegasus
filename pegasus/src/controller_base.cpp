@@ -162,8 +162,8 @@ void Controller::buildStickMap()
     A_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
-    A_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*500.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*500.0f*rc*0.4f*r_super_rate)\
+    A_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
@@ -185,10 +185,10 @@ void Controller::buildStickMap()
     float mid_us_ = E_mid_us;
     E_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
-                       *(i-mid_us_)/abs(i-mid_us_);
-    E_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*500.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*500.0f*rc*0.4f*r_super_rate)\
-                       *(i-mid_us_)/abs(i-mid_us_);
+                       *(mid_us_ - i)/abs(i-mid_us_);
+    E_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
+                       *(mid_us_ - i)/abs(i-mid_us_);
     }
   }
   for (int i = T_min_us; i <= T_max_us; i++)
@@ -212,8 +212,8 @@ void Controller::buildStickMap()
     else
     {
     float mid_us_ = R_mid_us;
-    R_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*500.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*500.0f*rc*0.4f*r_super_rate)\
+    R_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
