@@ -142,11 +142,11 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
     fx_w = -c_alpha*fd_alpha + s_alpha*fl_alpha;
     fy_w = -c_gamma*fd_gamma + s_gamma*fl_gamma;
     fz_w = -s_alpha*fd_alpha - c_alpha*fl_alpha - s_gamma*fd_gamma - c_gamma*fl_gamma;
-    l_w  =  0.0f;
-    m_w  =  0.0f;
+    // l_w  =  0.0f;
+    // m_w  =  0.0f;
     // TODO: figure out if these moments are okay or not.
-    // l_w  = -m_gamma;
-    // m_w  =  m_alpha;
+    l_w  = -m_gamma;
+    m_w  =  m_alpha;
     n_w  =  0.0f;
   }
   // Force due to Propultion
@@ -175,7 +175,7 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
     }
 
     delta_m  =  delta_m < 0.0f ? 0.0f : delta_m;
-    
+
     // Model of a DC Motor
     float omega, i, Qm, P_shaft, T, Q;
     omega   = K_delta_t_*delta_m;
@@ -203,5 +203,8 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
   l  =        l_w  + l_p;
   m  =        m_w  + m_p;
   n  =        n_w  + n_p;
+
+  if (s.pd == 0.0f)
+    fz -= mg_;
 }
 } // end namespace pegasus_sim

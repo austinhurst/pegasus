@@ -50,17 +50,38 @@ Estimator::Estimator() :
   {
     truth_subscriber_ = nh_.subscribe("/pegasus_sim/truth",1,&Estimator::truthCallback, this);
   }
-  else
-  {
-    sonar_subscriber_ = nh_.subscribe("sonar", 1, &Estimator::sonarCallback, this);
-    gps_subscriber_ = nh_.subscribe("gps", 1, &Estimator::gpsCallback, this);
-    barometer_subscriber_ = nh_.subscribe("barometer", 1, &Estimator::barometerCallback, this);
-    imu_subscriber_ = nh_.subscribe("imu", 1, &Estimator::imuCallback, this);
-  }
+  sonar_subscriber_     = nh_.subscribe("sonar", 1, &Estimator::sonarCallback, this);
+  gps_subscriber_       = nh_.subscribe("gps", 1, &Estimator::gpsCallback, this);
+  barometer_subscriber_ = nh_.subscribe("barometer", 1, &Estimator::barometerCallback, this);
+  imu_subscriber_       = nh_.subscribe("imu", 1, &Estimator::imuCallback, this);
 
   state_hat_publisher_ = nh_.advertise<VehicleState>("state_hat",1);
 
-  // Initial Vehicle State (TODO: Pull in from parameter server)
+  // Initial Vehicle State
+  if (!(ros::param::get("/pegasus/initial/pn",state_hat_.pn)))
+    ROS_WARN("No param named 'pn'");
+  if (!(ros::param::get("/pegasus/initial/pe",state_hat_.pe)))
+    ROS_WARN("No param named 'pe'");
+  if (!(ros::param::get("/pegasus/initial/pd",state_hat_.pd)))
+    ROS_WARN("No param named 'pd'");
+  if (!(ros::param::get("/pegasus/initial/u",state_hat_.u)))
+    ROS_WARN("No param named 'u'");
+  if (!(ros::param::get("/pegasus/initial/v",state_hat_.v)))
+    ROS_WARN("No param named 'v'");
+  if (!(ros::param::get("/pegasus/initial/w",state_hat_.w)))
+    ROS_WARN("No param named 'w'");
+  if (!(ros::param::get("/pegasus/initial/phi",state_hat_.phi)))
+    ROS_WARN("No param named 'phi'");
+  if (!(ros::param::get("/pegasus/initial/theta",state_hat_.theta)))
+    ROS_WARN("No param named 'theta'");
+  if (!(ros::param::get("/pegasus/initial/psi",state_hat_.psi)))
+    ROS_WARN("No param named 'psi'");
+  if (!(ros::param::get("/pegasus/initial/p",state_hat_.p)))
+    ROS_WARN("No param named 'p'");
+  if (!(ros::param::get("/pegasus/initial/q",state_hat_.q)))
+    ROS_WARN("No param named 'q'");
+  if (!(ros::param::get("/pegasus/initial/r",state_hat_.r)))
+    ROS_WARN("No param named 'r'");
 
   //******************** CLASS VARIABLES *******************//
   if (num_motors == 2)

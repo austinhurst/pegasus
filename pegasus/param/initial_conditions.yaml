@@ -1,0 +1,14 @@
+# Initial Conditions of the Vehicle
+initial:
+  pn:    0.0
+  pe:    0.0
+  pd:    0.0
+  u:     0.0
+  v:     0.0
+  w:     0.0
+  phi:   0.0
+  theta: 0.0
+  psi:   0.0
+  p:     0.0
+  q:     0.0
+  r:     0.0

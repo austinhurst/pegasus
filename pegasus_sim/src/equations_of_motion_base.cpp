@@ -39,13 +39,30 @@ EquationsOfMotion::EquationsOfMotion() :
   else
     ROS_ERROR("NO FORCES AND MOMENTUM MODEL INITIALIZED");
 
-  // Initial Vehicle State (TODO: Pull in from parameter server)
-  state_.pn = 0.0f;
-  state_.pe = 0.0f;
-  state_.pd = 0.0f;
-  state_.phi = 0.0*3.141592653/180.0;
-  state_.theta = 0.0*3.141592653/180.0;
-  state_.psi = 0.0*3.141592653/180.0;
+  if (!(ros::param::get("/pegasus/initial/pn",state_.pn)))
+    ROS_WARN("No param named 'pn'");
+  if (!(ros::param::get("/pegasus/initial/pe",state_.pe)))
+    ROS_WARN("No param named 'pe'");
+  if (!(ros::param::get("/pegasus/initial/pd",state_.pd)))
+    ROS_WARN("No param named 'pd'");
+  if (!(ros::param::get("/pegasus/initial/u",state_.u)))
+    ROS_WARN("No param named 'u'");
+  if (!(ros::param::get("/pegasus/initial/v",state_.v)))
+    ROS_WARN("No param named 'v'");
+  if (!(ros::param::get("/pegasus/initial/w",state_.w)))
+    ROS_WARN("No param named 'w'");
+  if (!(ros::param::get("/pegasus/initial/phi",state_.phi)))
+    ROS_WARN("No param named 'phi'");
+  if (!(ros::param::get("/pegasus/initial/theta",state_.theta)))
+    ROS_WARN("No param named 'theta'");
+  if (!(ros::param::get("/pegasus/initial/psi",state_.psi)))
+    ROS_WARN("No param named 'psi'");
+  if (!(ros::param::get("/pegasus/initial/p",state_.p)))
+    ROS_WARN("No param named 'p'");
+  if (!(ros::param::get("/pegasus/initial/q",state_.q)))
+    ROS_WARN("No param named 'q'");
+  if (!(ros::param::get("/pegasus/initial/r",state_.r)))
+    ROS_WARN("No param named 'r'");
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   truth_publisher_ = nh_.advertise<pegasus::VehicleState>("/pegasus_sim/truth",1);
@@ -63,11 +80,7 @@ EquationsOfMotion::EquationsOfMotion() :
 
   //********************** FUNCTIONS ***********************//
   // addUncertainty(&Jx_);
-  // addUncertainty(&Jy_);
-  // addUncertainty(&Jz_);
-  // addUncertainty(&Jxy_);
-  // addUncertainty(&Jxz_);
-  // addUncertainty(&Jyz_);
+
 }
 EquationsOfMotion::~EquationsOfMotion()
 {

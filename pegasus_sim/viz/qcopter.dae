@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
-  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2017-12-27T01:55:35Z</created><keywords></keywords><modified>2017-12-27T01:55:35Z</modified><revision></revision><subject></subject><title></title><unit meter="0.001000" name="meter"></unit><up_axis>Y_UP</up_axis></asset>
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2017-12-27T01:55:35Z</created><keywords></keywords><modified>2017-12-27T01:55:35Z</modified><revision></revision><subject></subject><title></title><unit meter="0.00200" name="meter"></unit><up_axis>Y_UP</up_axis></asset>
   <library_images>
     <image id="_85,85,85-image" name="_85,85,85"><init_from>file://CarbonFiber.jpg</init_from></image>
     <image id="red" name="red"><init_from>file://red.jpg</init_from></image>

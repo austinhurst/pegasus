@@ -271,12 +271,11 @@ void Controller::serviceAuxChannels(const ros::TimerEvent& event)
 }
 void Controller::publishDesiredCommand()
 {
-  // TODO: put back in the rates
   DesiredControl des_msg;
   des_msg.thrust_desired     = thrust_desired_;
-  des_msg.yaw_rate_desired   = 0.0f;//yaw_rate_desired_;
-  des_msg.roll_rate_desired  = 0.0f;//roll_rate_desired_;
-  des_msg.pitch_rate_desired = 0.0f;//pitch_rate_desired_;
+  des_msg.yaw_rate_desired   = yaw_rate_desired_;
+  des_msg.roll_rate_desired  = roll_rate_desired_;
+  des_msg.pitch_rate_desired = pitch_rate_desired_;
   des_msg.roll_desired       = roll_desired_;
   des_msg.pitch_desired      = pitch_desired_;
   desired_command_publisher_.publish(des_msg);
