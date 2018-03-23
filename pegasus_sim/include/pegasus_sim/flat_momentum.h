@@ -18,7 +18,7 @@ private:
   virtual void getForcesAndMoments(pegasus::state_struct s,
                                    float& fx, float& fy, float& fz,
                                    float& l, float& m, float& n);
-                                   
+
   //********************* NODE HANDLES *********************//
   ros::NodeHandle nh_;         // public node handle for publishing, subscribing
 
@@ -41,7 +41,8 @@ private:
   float Dp_;                  // Diameter of the propellor, INCHES
   float half_rho_S_;          // 0.5*rho_*S_
   float Ap_;                  // Area of the propellor disk
-  float piD30_;
+  float piD30_;               // M_PI/180.0
+  bool  flown_;               // true if the vehicle has flown, used for inital ground.
 
   //***************** CALLBACKS AND TIMERS *****************//
 

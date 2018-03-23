@@ -12,3 +12,7 @@ kD_theta: 0.1058
 
 kP_psi: 1
 kD_psi: 0.0272
+
+kP_h: 1.4832
+kD_h: 2.022
+kI_h: 0.15              # from root locus (Evan's Form)

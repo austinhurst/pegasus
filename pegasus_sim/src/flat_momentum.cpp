@@ -36,6 +36,7 @@ FlatMomentum::FlatMomentum()
   mg_          = mass_*g_;
   Ap_          = M_PI*Dp_*Dp_/4.0f;
   piD30_       = M_PI/30.0f;
+  flown_       = false;
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
 
@@ -204,7 +205,11 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
   m  =        m_w  + m_p;
   n  =        n_w  + n_p;
 
-  if (s.pd == 0.0f)
+  if (flown_ == false && s.pd == 0.0f)
+  {
     fz -= mg_;
+  }
+  else
+    flown_ = true;
 }
 } // end namespace pegasus_sim

@@ -31,7 +31,7 @@ rx:
     arm_throttle_max: 1005    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
                               # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.
   modes:
-    mode_aux_channel: 2       # Channel that selects the flight mode.
+    mode_aux_channel: 3       # Channel that selects the flight mode.
     min_angle_mode: 1000      # Minimum microseconds for angle mode.
     max_angle_mode: 1350      # Minimum microseconds for angle mode.
     min_rates_mode: 1350      # Minimum microseconds for rates mode.
@@ -39,9 +39,9 @@ rx:
     min_veloc_mode: 1650      # Minimum microseconds for veloc mode.
     max_veloc_mode: 2000      # Minimum microseconds for veloc mode.
 
-    rc_override_channel: 3    # Auxilary channel that determines autonomous flight or rc flight
-    min_auto_us: 1500         # Minimum microseconds for autonomous takeover.
-    max_auto_us: 2000         # Maximum microseconds for autonomous takeover.
+    rc_override_channel: 2    # Auxilary channel that determines autonomous flight or rc flight
+    min_auto_us: 950          # Minimum microseconds for autonomous takeover.
+    max_auto_us: 1300         # Maximum microseconds for autonomous takeover.
   curve:
     angle_mode:
       max_angle: 60.0         # Maximum angle allowed (positive degrees)

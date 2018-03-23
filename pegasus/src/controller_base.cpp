@@ -228,11 +228,21 @@ void Controller::mapControlChannels()
   thrust_desired_     = T_map_[throttle_stick_];
   yaw_rate_desired_   = R_rate_map_[rudder_stick_];
 
-  roll_rate_desired_  = A_rate_map_[aileron_stick_];
-  pitch_rate_desired_ = E_rate_map_[elevator_stick_];
-
-  roll_desired_       = A_angle_map_[aileron_stick_];
-  pitch_desired_      = E_angle_map_[elevator_stick_];
+  if (flight_mode_ == ANGLE_MODE)
+  {
+    roll_desired_       = A_angle_map_[aileron_stick_];
+    pitch_desired_      = E_angle_map_[elevator_stick_];
+  }
+  else if (flight_mode_ == AUTO__MODE)
+  {
+    Vg_desired_         = T_map_[elevator_stick_]*10.0;
+    chi_desired_        = T_map_[rudder_stick_]*2.0*M_PI - M_PI;
+  }
+  else if (flight_mode_ == RATES_MODE)
+  {
+    roll_rate_desired_  = A_rate_map_[aileron_stick_];
+    pitch_rate_desired_ = E_rate_map_[elevator_stick_];
+  }
 }
 void Controller::mapAuxChannels()
 {
@@ -262,12 +272,12 @@ void Controller::serviceAuxChannels(const ros::TimerEvent& event)
   // Flight Mode
   if   (aux_sticks[rc_override_channel_ - 1] > min_auto_us_ && aux_sticks[rc_override_channel_ - 1] < max_auto_us_)
     flight_mode_ = AUTO__MODE;
-  else if (aux_sticks[mode_aux_channel_ - 1] > min_angle_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_angle_mode_)
+  else// else if (aux_sticks[rc_override_channel_ - 1] > min_angle_mode_ && aux_sticks[rc_override_channel_ - 1] < max_angle_mode_)
     flight_mode_ = ANGLE_MODE;
-  else if (aux_sticks[mode_aux_channel_ - 1] > min_rates_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_rates_mode_)
-    flight_mode_ = RATES_MODE;
-  else if (aux_sticks[mode_aux_channel_ - 1] > min_veloc_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_veloc_mode_)
-    flight_mode_ = VELOC_MODE;
+  // else if (aux_sticks[mode_aux_channel_ - 1] > min_rates_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_rates_mode_)
+  //   flight_mode_ = RATES_MODE;
+  // else if (aux_sticks[mode_aux_channel_ - 1] > min_veloc_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_veloc_mode_)
+  //   flight_mode_ = VELOC_MODE;
 }
 void Controller::publishDesiredCommand()
 {

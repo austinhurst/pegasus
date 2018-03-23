@@ -55,6 +55,8 @@ protected:
   float yaw_rate_desired_;
   float roll_rate_desired_;
   float pitch_rate_desired_;
+  float Vg_desired_;
+  float chi_desired_;
 
   motor_struct *motors_;
   int num_motors_;

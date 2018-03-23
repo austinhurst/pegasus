@@ -13,6 +13,8 @@ public:
 private:
   virtual void control(const ros::TimerEvent& event);
   double ts_;
+  float mass_;
+  float g_;
 
   // PHI
   float kP_phi_;
@@ -27,6 +29,44 @@ private:
   float kD_psi_;
   float sigma_;
   float r_last_;
+  float rd_;
+
+  // HEIGHT
+  float kP_h_;
+  float kI_h_;
+  float kD_h_;
+  float Fe_;
+  float hd_;
+  float h_last_;
+  float h_integration_;
+  float e_height_last_;
+
+  // U
+  float kP_u_;
+  float kI_u_;
+  float kD_u_;
+  float ud_;
+  float u_last_;
+  float u_integration_;
+  float e_u_last_;
+
+  // V
+  float kP_v_;
+  float kI_v_;
+  float kD_v_;
+  float vd_;
+  float v_last_;
+  float v_integration_;
+  float e_v_last_;
+
+  // W
+  float kP_w_;
+  float kI_w_;
+  float kD_w_;
+  float wd_;
+  float w_last_;
+  float w_integration_;
+  float e_w_last_;
 
 
   // Mixer (TEMP)
