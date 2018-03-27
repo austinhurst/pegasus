@@ -8,21 +8,21 @@ rx:
                               # Number = Aux-Number
   aux_rate: 20.               # The rate at which the aux_channels are checked (Hz)
   aileron:
-    min_us: 1000                # Lowest signal the tx sends in microseconds.
-    mid_us: 1535                # Middle signal the tx sends in microseconds.
-    max_us: 2015                # Longest signal the tx sends in microseconds.
+    min_us: 1000              # Lowest signal the tx sends in microseconds.
+    mid_us: 1535              # Middle signal the tx sends in microseconds.
+    max_us: 2015              # Longest signal the tx sends in microseconds.
   elevator:
-    min_us:  925                # Lowest signal the tx sends in microseconds.
-    mid_us: 1396                # Middle signal the tx sends in microseconds.
-    max_us: 1912                # Longest signal the tx sends in microseconds.
+    min_us:  925              # Lowest signal the tx sends in microseconds.
+    mid_us: 1396              # Middle signal the tx sends in microseconds.
+    max_us: 1912              # Longest signal the tx sends in microseconds.
   thrust:
-    min_us:  985                # Lowest signal the tx sends in microseconds.
-    mid_us: 1463                # Middle signal the tx sends in microseconds.
-    max_us: 1960                # Longest signal the tx sends in microseconds.
+    min_us:  985              # Lowest signal the tx sends in microseconds.
+    mid_us: 1463              # Middle signal the tx sends in microseconds.
+    max_us: 1960              # Longest signal the tx sends in microseconds.
   rudder:
-    min_us:  925                # Lowest signal the tx sends in microseconds.
-    mid_us: 1527                # Middle signal the tx sends in microseconds.
-    max_us: 1985                # Longest signal the tx sends in microseconds.
+    min_us:  925              # Lowest signal the tx sends in microseconds.
+    mid_us: 1527              # Middle signal the tx sends in microseconds.
+    max_us: 1985              # Longest signal the tx sends in microseconds.
 
   arming:
     arm_aux_channel: 1        # The auxilary channel used to arm and disarm the vehicle (no matter the channel mapping)
@@ -31,17 +31,16 @@ rx:
     arm_throttle_max: 1005    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
                               # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.
   modes:
-    mode_aux_channel: 3       # Channel that selects the flight mode.
-    min_angle_mode: 1000      # Minimum microseconds for angle mode.
-    max_angle_mode: 1350      # Minimum microseconds for angle mode.
-    min_rates_mode: 1350      # Minimum microseconds for rates mode.
-    max_rates_mode: 1650      # Minimum microseconds for rates mode.
-    min_veloc_mode: 1650      # Minimum microseconds for veloc mode.
-    max_veloc_mode: 2000      # Minimum microseconds for veloc mode.
-
-    rc_override_channel: 2    # Auxilary channel that determines autonomous flight or rc flight
-    min_auto_us: 950          # Minimum microseconds for autonomous takeover.
+    mode_aux_channel: 2       # Channel that selects the flight mode.
+    min_angle_mode: 1300      # Minimum microseconds for angle mode.
+    max_angle_mode: 2000      # Minimum microseconds for angle mode.
+    min_rates_mode: 1300      # Minimum microseconds for rates mode.
+    max_rates_mode: 1300      # Minimum microseconds for rates mode.
+    min_veloc_mode: 950       # Minimum microseconds for veloc mode.
+    max_veloc_mode: 1300      # Minimum microseconds for veloc mode.
+    min_auto_us: 1300         # Minimum microseconds for autonomous takeover.
     max_auto_us: 1300         # Maximum microseconds for autonomous takeover.
+
   curve:
     angle_mode:
       max_angle: 60.0         # Maximum angle allowed (positive degrees)
@@ -55,3 +54,7 @@ rx:
       rc: 1.0                 # RC Rate, basic tuning parameter for sensitivity
       expo: 0.0               # Expo, 0.0 - 1.0, Higher means flatter near the middle
       super_rate: 0.0         # Super Rate, 0.0 - 1.0, Higher means more extreme away from center
+    height:
+      max_height: 50.0        # Maximum height while in VELOC_MODE
+    velocity:
+      max_velocity: 20.0      # Maximum velocity while in VELOC_MODE

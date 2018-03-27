@@ -11,12 +11,9 @@ Controller::Controller() :
 
   //********************** PARAMETERS **********************//
   float control_rate, aux_rate;
-  if (!(ros::param::get("control_rate",control_rate)))
-    ROS_WARN("No param named 'control_rate'");
-  if (!(ros::param::get("vehicle_description/num_motors",num_motors_)))
-    ROS_WARN("No param named 'num_motors");
-  if (!(ros::param::get("rx/aux_rate",aux_rate)))
-    ROS_WARN("No param named 'aux_rate'");
+  getRosParam("control_rate", control_rate);
+  getRosParam("vehicle_description/num_motors", num_motors_);
+  getRosParam("rx/aux_rate", aux_rate);
   pullParameters();
   piD180_ = M_PI/180.0f;
 
@@ -54,6 +51,15 @@ Controller::Controller() :
 
   //******************** CLASS VARIABLES *******************//
   last_time_ = ros::Time::now();
+  thrust_desired_     = 0.0f;
+  yaw_rate_desired_   = 0.0f;
+  roll_rate_desired_  = 0.0f;
+  pitch_rate_desired_ = 0.0f;
+  roll_desired_       = 0.0f;
+  pitch_desired_      = 0.0f;
+  Vg_desired_         = 0.0f;
+  chi_desired_        = 0.0f;
+  H_desired_          = 0.0f;
 
   //***************** CALLBACKS AND TIMERS *****************//
   control_timer_ = nh_.createTimer(ros::Duration(1.0/control_rate), &Controller::control, this);
@@ -88,77 +94,56 @@ void Controller::rxCallback(const rosflight_msgs::RCRaw &msg)
 void Controller::buildStickMap()
 {
   float max_angle, angle_expo, rate_expo, thrust_expo, rc, trc,  a_super_rate, r_super_rate, t_super_rate;
-  int A_min_us, A_mid_us, A_max_us, E_min_us, E_mid_us, E_max_us, T_min_us, T_mid_us, T_max_us;
+  float max_height, max_velocity;
+  int A_min_us, A_max_us, E_min_us, E_max_us, T_min_us, T_mid_us, T_max_us;
   int R_min_us, R_mid_us, R_max_us;
-  if (!(ros::param::get("rx/aileron/min_us",A_min_us)))
-    ROS_WARN("No param named 'aileron/min_us'");
-  if (!(ros::param::get("rx/aileron/mid_us",A_mid_us)))
-    ROS_WARN("No param named 'aileron/mid_us'");
-  if (!(ros::param::get("rx/aileron/max_us",A_max_us)))
-    ROS_WARN("No param named 'aileron/max_us'");
-  if (!(ros::param::get("rx/elevator/min_us",E_min_us)))
-    ROS_WARN("No param named 'elevator/min_us'");
-  if (!(ros::param::get("rx/elevator/mid_us",E_mid_us)))
-    ROS_WARN("No param named 'elevator/mid_us'");
-  if (!(ros::param::get("rx/elevator/max_us",E_max_us)))
-    ROS_WARN("No param named 'elevator/max_us'");
-  if (!(ros::param::get("rx/thrust/min_us",T_min_us)))
-    ROS_WARN("No param named 'thrust/min_us'");
-  if (!(ros::param::get("rx/thrust/mid_us",T_mid_us)))
-    ROS_WARN("No param named 'thrust/mid_us'");
-  if (!(ros::param::get("rx/thrust/max_us",T_max_us)))
-    ROS_WARN("No param named 'thrust/max_us'");
-  if (!(ros::param::get("rx/rudder/min_us",R_min_us)))
-    ROS_WARN("No param named 'rudder/min_us'");
-  if (!(ros::param::get("rx/rudder/mid_us",R_mid_us)))
-    ROS_WARN("No param named 'rudder/mid_us'");
-  if (!(ros::param::get("rx/rudder/max_us",R_max_us)))
-    ROS_WARN("No param named 'rudder/max_us'");
-  if (!(ros::param::get("rx/arming/min_arm_us",min_arm_us_)))
-    ROS_WARN("No param named 'min_arm_us'");
-  if (!(ros::param::get("rx/arming/max_arm_us",max_arm_us_)))
-    ROS_WARN("No param named 'max_arm_us'");
+  getRosParam("rx/aileron/min_us", A_min_us);
+  getRosParam("rx/aileron/mid_us",A_mid_us_);
+  getRosParam("rx/aileron/max_us",A_max_us);
+  getRosParam("rx/elevator/min_us",E_min_us);
+  getRosParam("rx/elevator/mid_us",E_mid_us_);
+  getRosParam("rx/elevator/max_us",E_max_us);
+  getRosParam("rx/thrust/min_us",T_min_us);
+  getRosParam("rx/thrust/mid_us",T_mid_us);
+  getRosParam("rx/thrust/max_us",T_max_us);
+  getRosParam("rx/rudder/min_us",R_min_us);
+  getRosParam("rx/rudder/mid_us",R_mid_us);
+  getRosParam("rx/rudder/max_us",R_max_us);
+  getRosParam("rx/arming/min_arm_us",min_arm_us_);
+  getRosParam("rx/arming/max_arm_us",max_arm_us_);
   if (min_arm_us_ >= max_arm_us_ ||(min_arm_us_ <= T_min_us && max_arm_us_ >= T_max_us))
     ROS_ERROR("ARMING RANGE SET INCORRECTLY");
-  if (!(ros::param::get("rx/arming/arm_throttle_max",arm_throttle_max_)))
-    ROS_WARN("No param named 'arm_throttle_max'");
+  getRosParam("rx/arming/arm_throttle_max",arm_throttle_max_);
   if (arm_throttle_max_ > T_min_us + 25.0)
     ROS_ERROR("THROTTLE ARMING RANGE SET INCORRECTLY (NOT WITHIN 25 OF 'min_us'");
-  if (!(ros::param::get("rx/curve/angle_mode/max_angle",max_angle)))
-    ROS_WARN("No param named 'curve/angle_mode/max_angle'");
-  if (!(ros::param::get("rx/curve/angle_mode/expo",angle_expo)))
-    ROS_WARN("No param named 'curve/angle_mode/expo'");
-  if (!(ros::param::get("rx/curve/rate_mode/expo",rate_expo)))
-    ROS_WARN("No param named 'curve/rate_mode/expo'");
-  if (!(ros::param::get("rx/curve/thrust/expo",thrust_expo)))
-    ROS_WARN("No param named 'curve/thrust/expo'");
-  if (!(ros::param::get("rx/curve/rate_mode/rc",rc)))
-    ROS_WARN("No param named 'curve/rate_mode/rc'");
-  if (!(ros::param::get("rx/curve/thrust/rc",trc)))
-    ROS_WARN("No param named 'curve/thrust/rc'");
-  if (!(ros::param::get("rx/curve/angle_mode/super_rate",a_super_rate)))
-    ROS_WARN("No param named 'curve/angle_mode/super_rate'");
-  if (!(ros::param::get("rx/curve/rate_mode/super_rate",r_super_rate)))
-    ROS_WARN("No param named 'curve/rate_mode/super_rate'");
-  if (!(ros::param::get("rx/curve/thrust/super_rate",t_super_rate)))
-    ROS_WARN("No param named 'curve/thrust/super_rate'");
+  getRosParam("rx/curve/angle_mode/max_angle",max_angle);
+  getRosParam("rx/curve/angle_mode/expo",angle_expo);
+  getRosParam("rx/curve/rate_mode/expo",rate_expo);
+  getRosParam("rx/curve/thrust/expo",thrust_expo);
+  getRosParam("rx/curve/rate_mode/rc",rc);
+  getRosParam("rx/curve/thrust/rc",trc);
+  getRosParam("rx/curve/angle_mode/super_rate",a_super_rate);
+  getRosParam("rx/curve/rate_mode/super_rate",r_super_rate);
+  getRosParam("rx/curve/thrust/super_rate",t_super_rate);
+  getRosParam("rx/curve/height/max_height",max_height);
+  getRosParam("rx/curve/velocity/max_velocity",max_velocity);
   float shorter;
-  if (A_max_us - A_mid_us < A_mid_us - A_min_us && A_max_us - A_mid_us < 500.0f)
-    shorter = A_max_us - A_mid_us;
-  else if (A_mid_us - A_min_us < 500.0f)
-    shorter = A_mid_us - A_min_us;
+  if (A_max_us - A_mid_us_ < A_mid_us_ - A_min_us && A_max_us - A_mid_us_ < 500.0f)
+    shorter = A_max_us - A_mid_us_;
+  else if (A_mid_us_ - A_min_us < 500.0f)
+    shorter = A_mid_us_ - A_min_us;
   else
     shorter = 500.0f;
   for (int i = A_min_us; i <= A_max_us; i++)
   {
-    if (i == A_mid_us)
+    if (i == A_mid_us_)
     {
       A_angle_map_[i]  = 0.0f;
       A_rate_map_[i]   = 0.0f;
     }
     else
     {
-    float mid_us_ = A_mid_us;
+    float mid_us_ = A_mid_us_;
     A_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
@@ -167,22 +152,22 @@ void Controller::buildStickMap()
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
-  if (E_max_us - E_mid_us < E_mid_us - E_min_us && E_max_us - E_mid_us < 500.0f)
-    shorter = E_max_us - E_mid_us;
-  else if (E_mid_us - E_min_us < 500.0f)
-    shorter = E_mid_us - E_min_us;
+  if (E_max_us - E_mid_us_ < E_mid_us_ - E_min_us && E_max_us - E_mid_us_ < 500.0f)
+    shorter = E_max_us - E_mid_us_;
+  else if (E_mid_us_ - E_min_us < 500.0f)
+    shorter = E_mid_us_ - E_min_us;
   else
     shorter = 500.0f;
   for (int i = E_min_us; i <= E_max_us; i++)
   {
-    if (i == E_mid_us)
+    if (i == E_mid_us_)
     {
       E_angle_map_[i]  = 0.0f;
       E_rate_map_[i]   = 0.0f;
     }
     else
     {
-    float mid_us_ = E_mid_us;
+    float mid_us_ = E_mid_us_;
     E_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
                        *(mid_us_ - i)/abs(i-mid_us_);
@@ -217,31 +202,39 @@ void Controller::buildStickMap()
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
+  for (int i = T_min_us; i <= T_max_us; i++)
+    H_map_[i] = (float (i - T_min_us))/(float (T_max_us - T_min_us))*max_height;
 }
 void Controller::mapControlChannels()
 {
-  // pull off the right channel
   aileron_stick_      = rx_[A_channel_];
   elevator_stick_     = rx_[E_channel_];
   throttle_stick_     = rx_[T_channel_];
   rudder_stick_       = rx_[R_channel_];
-  thrust_desired_     = T_map_[throttle_stick_];
-  yaw_rate_desired_   = R_rate_map_[rudder_stick_];
 
-  if (flight_mode_ == ANGLE_MODE)
+  switch (flight_mode_)
   {
-    roll_desired_       = A_angle_map_[aileron_stick_];
-    pitch_desired_      = E_angle_map_[elevator_stick_];
-  }
-  else if (flight_mode_ == AUTO__MODE)
-  {
-    Vg_desired_         = T_map_[elevator_stick_]*10.0;
-    chi_desired_        = T_map_[rudder_stick_]*2.0*M_PI - M_PI;
-  }
-  else if (flight_mode_ == RATES_MODE)
-  {
-    roll_rate_desired_  = A_rate_map_[aileron_stick_];
-    pitch_rate_desired_ = E_rate_map_[elevator_stick_];
+    case ANGLE_MODE:
+      roll_desired_       = A_angle_map_[aileron_stick_];
+      pitch_desired_      = E_angle_map_[elevator_stick_];
+      thrust_desired_     = T_map_[throttle_stick_];
+      yaw_rate_desired_   = R_rate_map_[rudder_stick_];
+    break;
+    case VELOC_MODE:
+      H_desired_          = H_map_[throttle_stick_];
+      Vg_desired_         = sqrtf(powf(aileron_stick_ - A_mid_us_, 2.0f) + powf(elevator_stick_ - E_mid_us_, 2.0f));
+      chi_desired_        = atan2f(aileron_stick_ - A_mid_us_, elevator_stick_ - E_mid_us_);
+      yaw_rate_desired_   = R_rate_map_[rudder_stick_];
+    break;
+    case RATES_MODE:
+      roll_rate_desired_  = A_rate_map_[aileron_stick_];
+      pitch_rate_desired_ = E_rate_map_[elevator_stick_];
+      thrust_desired_     = T_map_[throttle_stick_];
+      yaw_rate_desired_   = R_rate_map_[rudder_stick_];
+    break;
+    case AUTO__MODE:
+      // TODO
+    break;
   }
 }
 void Controller::mapAuxChannels()
@@ -269,15 +262,43 @@ void Controller::serviceAuxChannels(const ros::TimerEvent& event)
   else
     disarm();
 
+  int last_flight_mode = flight_mode_;
   // Flight Mode
-  if   (aux_sticks[rc_override_channel_ - 1] > min_auto_us_ && aux_sticks[rc_override_channel_ - 1] < max_auto_us_)
+  if      (aux_sticks[mode_aux_channel_ - 1] > min_auto_us_    && aux_sticks[mode_aux_channel_ - 1] < max_auto_us_)
     flight_mode_ = AUTO__MODE;
-  else// else if (aux_sticks[rc_override_channel_ - 1] > min_angle_mode_ && aux_sticks[rc_override_channel_ - 1] < max_angle_mode_)
+  else if (aux_sticks[mode_aux_channel_ - 1] > min_angle_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_angle_mode_)
     flight_mode_ = ANGLE_MODE;
-  // else if (aux_sticks[mode_aux_channel_ - 1] > min_rates_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_rates_mode_)
-  //   flight_mode_ = RATES_MODE;
-  // else if (aux_sticks[mode_aux_channel_ - 1] > min_veloc_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_veloc_mode_)
-  //   flight_mode_ = VELOC_MODE;
+  else if (aux_sticks[mode_aux_channel_ - 1] > min_rates_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_rates_mode_)
+    flight_mode_ = RATES_MODE;
+  else if (aux_sticks[mode_aux_channel_ - 1] > min_veloc_mode_ && aux_sticks[mode_aux_channel_ - 1] < max_veloc_mode_)
+    flight_mode_ = VELOC_MODE;
+  if (flight_mode_ != last_flight_mode)
+  {
+    switch (last_flight_mode)
+    {
+      case ANGLE_MODE:
+        roll_desired_       = 0.0f;
+        pitch_desired_      = 0.0f;
+        thrust_desired_     = 0.0f;
+        yaw_rate_desired_   = 0.0f;
+      break;
+      case VELOC_MODE:
+        H_desired_          = 0.0f;
+        Vg_desired_         = 0.0f;
+        chi_desired_        = 0.0f;
+        yaw_rate_desired_   = 0.0f;
+      break;
+      case RATES_MODE:
+        roll_rate_desired_  = 0.0f;
+        pitch_rate_desired_ = 0.0f;
+        thrust_desired_     = 0.0f;
+        yaw_rate_desired_   = 0.0f;
+      break;
+      case AUTO__MODE:
+        // TODO
+      break;
+    }
+  }
 }
 void Controller::publishDesiredCommand()
 {
@@ -288,6 +309,9 @@ void Controller::publishDesiredCommand()
   des_msg.pitch_rate_desired = pitch_rate_desired_;
   des_msg.roll_desired       = roll_desired_;
   des_msg.pitch_desired      = pitch_desired_;
+  des_msg.Vg_desired         = Vg_desired_;
+  des_msg.chi_desired        = chi_desired_;
+  des_msg.H_desired          = H_desired_;
   desired_command_publisher_.publish(des_msg);
 }
 void Controller::publishMotorCommand()
@@ -449,34 +473,41 @@ void Controller::setChannels(std::string channel_map)
 void Controller::pullParameters()
 {
   std::string channel_map;
-  if (!(ros::param::get("rx/channel_map",channel_map)))
-    ROS_WARN("No param named 'channel_map'");
+  getRosParam("rx/channel_map",channel_map);
   setChannels(channel_map);
 
-  if (!(ros::param::get("rx/arming/arm_aux_channel",arm_aux_channel_)))
-    ROS_WARN("No param named 'arm_aux_channel'");
+  getRosParam("rx/arming/arm_aux_channel",arm_aux_channel_);
   if (arm_aux_channel_ != 1 && arm_aux_channel_ != 2 && arm_aux_channel_ != 3 && arm_aux_channel_ != 4)
     ROS_ERROR("ARMING AUX CHANNEL IS NOT SET APPROPRIATELY");
-  if (!(ros::param::get("rx/modes/mode_aux_channel",mode_aux_channel_)))
-    ROS_WARN("No param named 'mode_aux_channel'");
-  if (!(ros::param::get("rx/modes/min_angle_mode",min_angle_mode_)))
-    ROS_WARN("No param named 'min_angle_mode'");
-  if (!(ros::param::get("rx/modes/max_angle_mode",max_angle_mode_)))
-    ROS_WARN("No param named 'max_angle_mode'");
-  if (!(ros::param::get("rx/modes/min_rates_mode",min_rates_mode_)))
-    ROS_WARN("No param named 'min_rates_mode'");
-  if (!(ros::param::get("rx/modes/max_rates_mode",max_rates_mode_)))
-    ROS_WARN("No param named 'max_rates_mode'");
-  if (!(ros::param::get("rx/modes/min_veloc_mode",min_veloc_mode_)))
-    ROS_WARN("No param named 'min_veloc_mode'");
-  if (!(ros::param::get("rx/modes/max_veloc_mode",max_veloc_mode_)))
-    ROS_WARN("No param named 'max_veloc_mode'");
-  if (!(ros::param::get("rx/modes/rc_override_channel",rc_override_channel_)))
-    ROS_WARN("No param named 'rc_override_channel'");
-  if (!(ros::param::get("rx/modes/min_auto_us",min_auto_us_)))
-    ROS_WARN("No param named 'min_auto_us'");
-  if (!(ros::param::get("rx/modes/max_auto_us",max_auto_us_)))
-    ROS_WARN("No param named 'max_auto_us'");
+  getRosParam("rx/modes/mode_aux_channel",mode_aux_channel_);
+  getRosParam("rx/modes/min_angle_mode",min_angle_mode_);
+  getRosParam("rx/modes/max_angle_mode",max_angle_mode_);
+  getRosParam("rx/modes/min_rates_mode",min_rates_mode_);
+  getRosParam("rx/modes/max_rates_mode",max_rates_mode_);
+  getRosParam("rx/modes/min_veloc_mode",min_veloc_mode_);
+  getRosParam("rx/modes/max_veloc_mode",max_veloc_mode_);
+  getRosParam("rx/modes/min_auto_us",min_auto_us_);
+  getRosParam("rx/modes/max_auto_us",max_auto_us_);
+}
+void Controller::getRosParam(std::string parameter_name, int &param)
+{
+  if (!(ros::param::get(parameter_name ,param)))
+    ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
+}
+void Controller::getRosParam(std::string parameter_name, float &param)
+{
+  if (!(ros::param::get(parameter_name ,param)))
+    ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
+}
+void Controller::getRosParam(std::string parameter_name, double &param)
+{
+  if (!(ros::param::get(parameter_name ,param)))
+    ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
+}
+void Controller::getRosParam(std::string parameter_name, std::string &param)
+{
+  if (!(ros::param::get(parameter_name ,param)))
+    ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
 }
 } // end namespace pegasus
 

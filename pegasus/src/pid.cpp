@@ -5,29 +5,18 @@ namespace pegasus
 PID::PID()
 {
   // SETUP THE CONTROLLER HERE
-  if (!(ros::param::get("kP_phi",kP_phi_)))
-    ROS_WARN("No param named 'kP_phi'");
-  if (!(ros::param::get("kD_phi",kD_phi_)))
-    ROS_WARN("No param named 'kD_phi'");
-  if (!(ros::param::get("kP_theta",kP_theta_)))
-    ROS_WARN("No param named 'kP_theta'");
-  if (!(ros::param::get("kD_theta",kD_theta_)))
-    ROS_WARN("No param named 'kD_theta'");
-  if (!(ros::param::get("kP_psi",kP_psi_)))
-    ROS_WARN("No param named 'kP_psi'");
-  if (!(ros::param::get("kD_psi",kD_psi_)))
-    ROS_WARN("No param named 'kD_psi'");
-  if (!(ros::param::get("kP_h",kP_h_)))
-    ROS_WARN("No param named 'kP_h'");
-  if (!(ros::param::get("kD_h",kD_h_)))
-    ROS_WARN("No param named 'kD_h'");
-  if (!(ros::param::get("kI_h",kI_h_)))
-    ROS_WARN("No param named 'kI_h'");
+  getRosParam("kP_phi",kP_phi_);
+  getRosParam("kD_phi",kD_phi_);
+  getRosParam("kP_theta",kP_theta_);
+  getRosParam("kD_theta",kD_theta_);
+  getRosParam("kP_psi",kP_psi_);
+  getRosParam("kD_psi",kD_psi_);
+  getRosParam("kP_h",kP_h_);
+  getRosParam("kD_h",kD_h_);
+  getRosParam("kI_h",kI_h_);
 
-  if (!(ros::param::get("vehicle_description/mass",mass_)))
-    ROS_WARN("No param named 'mass");
-  if (!(ros::param::get("vehicle_description/g",g_)))
-    ROS_WARN("No param named 'g");
+  getRosParam("vehicle_description/mass",mass_);
+  getRosParam("vehicle_description/g",g_);
   sigma_         = 0.05;
   r_last_        = 0.0;
   rd_            = 0.0;
@@ -42,14 +31,10 @@ PID::PID()
   u_integration_ = v_integration_ = w_integration_ = 0.0;
   e_u_last_      = e_v_last_      = e_w_last_      = 0.0;
 
-  if (!(ros::param::get("vehicle_description/motors/K1",K1_)))
-    ROS_WARN("No param named 'K1");
-  if (!(ros::param::get("vehicle_description/motors/K1",K2_)))
-    ROS_WARN("No param named 'K2");
-  if (!(ros::param::get("vehicle_description/motors/x",x_)))
-    ROS_WARN("No param named 'x");
-  if (!(ros::param::get("vehicle_description/motors/y",y_)))
-    ROS_WARN("No param named 'y");
+  getRosParam("vehicle_description/motors/K1",K1_);
+  getRosParam("vehicle_description/motors/K1",K2_);
+  getRosParam("vehicle_description/motors/x",x_);
+  getRosParam("vehicle_description/motors/y",y_);
 }
 void PID::control(const ros::TimerEvent& event)
 {
@@ -60,11 +45,10 @@ void PID::control(const ros::TimerEvent& event)
 
   // THRUST
   float F;
-  if (flight_mode_ == AUTO__MODE)
+  if (flight_mode_ == VELOC_MODE)
   {
     // HEIGHT - PID CONTROL
-    float height_desired = thrust_desired_*100.0f; // This is TEMP so that can control "autonomously" from tx
-    float e_height = height_desired - (-state_.pd);
+    float e_height = H_desired_ - (-state_.pd);
     hd_ =  ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*hd_ + (2.0f/(2.0f*sigma_ + ts_))*(-state_.pd - h_last_);
     h_integration_ = h_integration_ + ts_/2.0*(e_height + e_height_last_);
     F = kP_h_*e_height - kD_h_*hd_ + kI_h_*h_integration_ + Fe_;
