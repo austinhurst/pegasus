@@ -27,5 +27,15 @@
     <node name="wind" pkg="pegasus_sim" type="wind" output="screen"                  />
   </group>
 
+  <!-- <node name="pitch_plotter"
+      pkg="rqt_plot"
+      type="rqt_plot"
+      args="/pegasus_sim/truth/theta /pegasus/desired_command/pitch_desired" />
+
+  <node name="roll_plotter"
+      pkg="rqt_plot"
+      type="rqt_plot"
+      args="/pegasus_sim/truth/phi /pegasus/desired_command/roll_desired" /> -->
+
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pegasus_sim)/viz/qcopter.rviz" required="true"/>
 </launch>

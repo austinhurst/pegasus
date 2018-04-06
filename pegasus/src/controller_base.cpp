@@ -63,7 +63,7 @@ Controller::Controller() :
 
   //***************** CALLBACKS AND TIMERS *****************//
   control_timer_ = nh_.createTimer(ros::Duration(1.0/control_rate), &Controller::control, this);
-  aux_timer_ = nh_.createTimer(ros::Duration(1.0/aux_rate), &Controller::serviceAuxChannels, this);
+  aux_timer_     = nh_.createTimer(ros::Duration(1.0/aux_rate), &Controller::serviceAuxChannels, this);
 
   //********************** FUNCTIONS ***********************//
   buildStickMap();
@@ -222,7 +222,7 @@ void Controller::mapControlChannels()
     break;
     case VELOC_MODE:
       H_desired_          = H_map_[throttle_stick_];
-      Vg_desired_         = sqrtf(powf(aileron_stick_ - A_mid_us_, 2.0f) + powf(elevator_stick_ - E_mid_us_, 2.0f));
+      Vg_desired_         = sqrtf(powf(aileron_stick_ - A_mid_us_, 2.0f) + powf(elevator_stick_ - E_mid_us_, 2.0f))/500.0*5.0;
       chi_desired_        = atan2f(aileron_stick_ - A_mid_us_, elevator_stick_ - E_mid_us_);
       yaw_rate_desired_   = R_rate_map_[rudder_stick_];
     break;

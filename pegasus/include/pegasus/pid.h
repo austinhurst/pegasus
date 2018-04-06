@@ -41,31 +41,23 @@ private:
   float h_integration_;
   float e_height_last_;
 
+
+  float kP_v1_;
+  float kD_v1_;
+
   // U
-  float kP_u_;
-  float kI_u_;
-  float kD_u_;
-  float ud_;
-  float u_last_;
-  float u_integration_;
+  float u1d_;
+  float u1_last_;
   float e_u_last_;
 
   // V
-  float kP_v_;
-  float kI_v_;
-  float kD_v_;
-  float vd_;
-  float v_last_;
-  float v_integration_;
+  float v1d_;
+  float v1_last_;
   float e_v_last_;
 
   // W
-  float kP_w_;
-  float kI_w_;
-  float kD_w_;
-  float wd_;
-  float w_last_;
-  float w_integration_;
+  float w1d_;
+  float w1_last_;
   float e_w_last_;
 
 

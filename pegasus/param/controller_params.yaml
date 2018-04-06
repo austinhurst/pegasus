@@ -9,10 +9,16 @@ kD_phi: 0.1058
 kP_theta: 1.9071
 kD_theta: 0.1058
 
-
 kP_psi: 1
 kD_psi: 0.0272
 
 kP_h: 1.4832
 kD_h: 2.022
 kI_h: 0.15              # from root locus (Evan's Form)
+
+# kD_h: 0.0
+# kP_h: 7.5
+
+
+kP_v1: 5.0              # 5/tr
+kD_v1: 0.0
