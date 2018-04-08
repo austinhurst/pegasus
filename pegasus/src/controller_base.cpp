@@ -7,15 +7,14 @@ namespace pegasus
 Controller::Controller() :
   nh_(ros::NodeHandle())
 {
-  armed_ = false;
-
+  armed_  = false;
+  piD180_ = M_PI/180.0f;
   //********************** PARAMETERS **********************//
   float control_rate, aux_rate;
   getRosParam("control_rate", control_rate);
   getRosParam("vehicle_description/num_motors", num_motors_);
   getRosParam("rx/aux_rate", aux_rate);
   pullParameters();
-  piD180_ = M_PI/180.0f;
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
   vehicle_state_subscriber_ = nh_.subscribe("state_hat",1,&Controller::vehicleStateCallback, this);
@@ -93,8 +92,7 @@ void Controller::rxCallback(const rosflight_msgs::RCRaw &msg)
 }
 void Controller::buildStickMap()
 {
-  float max_angle, angle_expo, rate_expo, thrust_expo, rc, trc,  a_super_rate, r_super_rate, t_super_rate;
-  float max_height, max_velocity;
+  float max_angle, angle_expo, rate_expo, thrust_expo, rc, trc,  a_super_rate, r_super_rate, t_super_rate, max_height;
   int A_min_us, A_max_us, E_min_us, E_max_us, T_min_us, T_mid_us, T_max_us;
   int R_min_us, R_mid_us, R_max_us;
   getRosParam("rx/aileron/min_us", A_min_us);
@@ -117,6 +115,7 @@ void Controller::buildStickMap()
   if (arm_throttle_max_ > T_min_us + 25.0)
     ROS_ERROR("THROTTLE ARMING RANGE SET INCORRECTLY (NOT WITHIN 25 OF 'min_us'");
   getRosParam("rx/curve/angle_mode/max_angle",max_angle);
+  max_angle = max_angle*piD180_;
   getRosParam("rx/curve/angle_mode/expo",angle_expo);
   getRosParam("rx/curve/rate_mode/expo",rate_expo);
   getRosParam("rx/curve/thrust/expo",thrust_expo);
@@ -126,7 +125,7 @@ void Controller::buildStickMap()
   getRosParam("rx/curve/rate_mode/super_rate",r_super_rate);
   getRosParam("rx/curve/thrust/super_rate",t_super_rate);
   getRosParam("rx/curve/height/max_height",max_height);
-  getRosParam("rx/curve/velocity/max_velocity",max_velocity);
+  getRosParam("rx/curve/velocity/max_velocity",max_velocity_);
   float shorter;
   if (A_max_us - A_mid_us_ < A_mid_us_ - A_min_us && A_max_us - A_mid_us_ < 500.0f)
     shorter = A_max_us - A_mid_us_;
@@ -147,8 +146,8 @@ void Controller::buildStickMap()
     A_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
-    A_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
+    A_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*piD180_*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*piD180_*rc*0.4f*r_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
@@ -171,8 +170,8 @@ void Controller::buildStickMap()
     E_angle_map_[i]  = ( pow((abs(i-mid_us_)/shorter),pow(10.0,angle_expo))*max_angle\
                        + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*max_angle*0.4f*a_super_rate)\
                        *(mid_us_ - i)/abs(i-mid_us_);
-    E_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
+    E_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*piD180_*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*piD180_*rc*0.4f*r_super_rate)\
                        *(mid_us_ - i)/abs(i-mid_us_);
     }
   }
@@ -197,8 +196,8 @@ void Controller::buildStickMap()
     else
     {
     float mid_us_ = R_mid_us;
-    R_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*rc\
-                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*rc*0.4f*r_super_rate)\
+    R_rate_map_[i]   = ( pow((abs(i-mid_us_)/shorter),pow(10.0,rate_expo))*400.0f*piD180_*rc\
+                       + pow((abs(i-mid_us_)/shorter),pow(10.0, .8))*400.0f*piD180_*rc*0.4f*r_super_rate)\
                        *(i-mid_us_)/abs(i-mid_us_);
     }
   }
@@ -222,7 +221,8 @@ void Controller::mapControlChannels()
     break;
     case VELOC_MODE:
       H_desired_          = H_map_[throttle_stick_];
-      Vg_desired_         = sqrtf(powf(aileron_stick_ - A_mid_us_, 2.0f) + powf(elevator_stick_ - E_mid_us_, 2.0f))/500.0*5.0;
+      Vg_desired_         = sqrtf(powf(aileron_stick_  - A_mid_us_, 2.0f) \
+                                + powf(elevator_stick_ - E_mid_us_, 2.0f))/500.*max_velocity_;
       chi_desired_        = atan2f(aileron_stick_ - A_mid_us_, elevator_stick_ - E_mid_us_);
       yaw_rate_desired_   = R_rate_map_[rudder_stick_];
     break;

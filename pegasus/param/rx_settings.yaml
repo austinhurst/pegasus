@@ -57,4 +57,4 @@ rx:
     height:
       max_height: 50.0        # Maximum height while in VELOC_MODE
     velocity:
-      max_velocity: 20.0      # Maximum velocity while in VELOC_MODE
+      max_velocity: 10.0      # Maximum velocity while in VELOC_MODE

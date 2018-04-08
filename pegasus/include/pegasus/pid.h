@@ -40,34 +40,35 @@ private:
   float h_last_;
   float h_integration_;
   float e_height_last_;
+  float min_thrust_;
+  float max_thrust_;
+
 
 
   float kP_v1_;
   float kD_v1_;
 
-  // U
+  // U1
   float u1d_;
   float u1_last_;
   float e_u_last_;
 
-  // V
+  // V1
   float v1d_;
   float v1_last_;
   float e_v_last_;
 
-  // W
-  float w1d_;
-  float w1_last_;
-  float e_w_last_;
-
+  float max_tilt_;
+  float sin_max_tilt_;
+  float alt_hold_;
 
   // Mixer (TEMP)
   void mixMotors4(float F, float t_phi, float t_theta, float t_psi);
   float saturate(float value_i, float min, float max);
-  float K1_;
-  float K2_;
-  float x_;
-  float y_;
+  float K1_;  // Thrust constant
+  float K2_;  // Torque constant
+  float x_;   // x position of motors
+  float y_;   // y position of motors
 };// end class PID
 } // end namespace pegasus
 

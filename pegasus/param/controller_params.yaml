@@ -3,22 +3,23 @@ control_rate: 300       # The rate the controller runs at (Hz)
 
 control_type: PID       # Type of Controller
                         # PID - Proportinal Integral Derivative Control
-kP_phi: 1.9071
-kD_phi: 0.1058
+kP_phi:   1.9071
+kD_phi:   0.1058
 
 kP_theta: 1.9071
 kD_theta: 0.1058
 
-kP_psi: 1
-kD_psi: 0.0272
+kP_psi:   1
+kD_psi:   0.0272
 
-kP_h: 1.4832
-kD_h: 2.022
-kI_h: 0.15              # from root locus (Evan's Form)
+kP_h:     1.4832
+kD_h:     2.022
+kI_h:     0.40          # from root locus (Evan's Form)
+min_throttle: 0.08      # fraction of the minimum throttle allowed
+max_throttle: 1.00      # fraction of the maximum throttle allowed
 
-# kD_h: 0.0
-# kP_h: 7.5
+kP_v1:    2.5           # 5/tr
+kD_v1:    0.0           # First order system - this should stay 0
 
-
-kP_v1: 5.0              # 5/tr
-kD_v1: 0.0
+max_tilt: 30.0          # maximum anlge the autopilot is allowed to tilt the rotor
+alt_hold: 10.0          # altitude hold zone (m)

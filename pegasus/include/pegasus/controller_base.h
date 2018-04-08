@@ -112,6 +112,7 @@ private:
   // VELOC_MODE variables
   int A_mid_us_;
   int E_mid_us_;
+  float max_velocity_;
 
   //***************** CALLBACKS AND TIMERS *****************//
   void vehicleStateCallback(const VehicleStateConstPtr &msg);
