@@ -12,6 +12,7 @@ public:
 
 private:
   virtual pegasus::state_struct derivative(pegasus::state_struct s);
+  virtual pegasus::state_struct addRedundantStates(pegasus::state_struct s);
   float invJ11_;
   float invJ12_;
   float invJ13_;

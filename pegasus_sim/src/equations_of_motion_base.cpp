@@ -96,12 +96,17 @@ void EquationsOfMotion::propogate(const ros::TimerEvent&)
   k3_ = derivative(state_ + k2_*(h/2.0f));
   k4_ = derivative(state_ + k3_*h       );
   state_ = state_ + (k1_ + k2_*2.0f + k3_*2.0f + k4_)*(h/6.0f);
+  state_ = addRedundantStates(state_);
   truth_publisher_.publish(state_.msg());
   last_time_ = new_time;
 }
-pegasus::state_struct EquationsOfMotion::derivative(pegasus::state_struct)
+pegasus::state_struct EquationsOfMotion::derivative(pegasus::state_struct s)
 {
   ROS_ERROR("CHILD CLASS FUNCTION 'derivative' WAS NOT CALLED.");
+}
+pegasus::state_struct EquationsOfMotion::addRedundantStates(pegasus::state_struct s)
+{
+  ROS_ERROR("CHILD CLASS FUNCTION 'addRedundantStates' WAS NOT CALLED.");
 }
 void EquationsOfMotion::updateViz(const ros::WallTimerEvent&)
 {

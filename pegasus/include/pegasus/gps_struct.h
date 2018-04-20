@@ -9,15 +9,15 @@ namespace pegasus
   {
     //*********************** VARIABLES **********************//
   private:
-    double piD180_;   // pi/180
-    double a_;        // length of Earth's semi-major axis in meters
-    double b_;        // length of Earth's semi-minor axis in meters
-    double e2_;       // e = first numerical eccentricity, e2_ = e^2
-    double R_[3][3];  // rotational matrix from ECEF to NED
-    double xr_;       // ECEF x coordinate of reference point
-    double yr_;       // ECEF y coordinate of reference point
-    double zr_;       // ECEF z coordinate of reference point
-    double epsilon_;  // used in ned2gps
+    float piD180_;   // pi/180
+    float a_;        // length of Earth's semi-major axis in meters
+    float b_;        // length of Earth's semi-minor axis in meters
+    float e2_;       // e = first numerical eccentricity, e2_ = e^2
+    float R_[3][3];  // rotational matrix from ECEF to NED
+    float xr_;       // ECEF x coordinate of reference point
+    float yr_;       // ECEF y coordinate of reference point
+    float zr_;       // ECEF z coordinate of reference point
+    float epsilon_;  // used in ned2gps
 
   public:
     gps_struct()
@@ -30,16 +30,16 @@ namespace pegasus
     //****************** OPERATOR FUNCTIONS ******************//
 
     //********************** FUNCTIONS ***********************//
-    void set_reference(double r_lat_deg, double r_lon_deg, double r_height_m)
+    void set_reference(float r_lat_deg, float r_lon_deg, float r_height_m)
     {
-      double r_phi    = r_lat_deg*piD180_;     // reference latitude  (N)
-      double r_lambda = r_lon_deg*piD180_;     // reference longitude (E)
-      double r_height = r_height_m;            // reference height in meters
-      double nu0      = a_/sqrt(1.0 - e2_*sin(r_phi)*sin(r_phi));
-      double s_r_phi  = sin(r_phi);
-      double c_r_phi  = cos(r_phi);
-      double s_r_lam  = sin(r_lambda);
-      double c_r_lam  = cos(r_lambda);
+      float r_phi    = r_lat_deg*piD180_;     // reference latitude  (N)
+      float r_lambda = r_lon_deg*piD180_;     // reference longitude (E)
+      float r_height = r_height_m;            // reference height in meters
+      float nu0      = a_/sqrt(1.0 - e2_*sin(r_phi)*sin(r_phi));
+      float s_r_phi  = sin(r_phi);
+      float c_r_phi  = cos(r_phi);
+      float s_r_lam  = sin(r_lambda);
+      float c_r_lam  = cos(r_lambda);
       R_[0][0]        = -s_r_phi*c_r_lam;
       R_[0][1]        = -s_r_phi*s_r_lam;
       R_[0][2]        =  c_r_phi;
@@ -54,46 +54,46 @@ namespace pegasus
       zr_             = (nu0*(1.0 - e2_) + r_height)*s_r_phi;
       epsilon_        = e2_/(1.0 - e2_);
     }
-    void gps2ned(double lat_N, double lon_E, double h_M, double& N, double& E, double& D)
+    void gps2ned(float lat_N, float lon_E, float h_M, float& N, float& E, float& D)
     {
-      double phi      = lat_N*piD180_;
-      double lambda   = lon_E*piD180_;
+      float phi      = lat_N*piD180_;
+      float lambda   = lon_E*piD180_;
 
       // Convert the angles into Earth Centered Earth Fixed Reference Frame
-      double s_phi    = sin(phi);
-      double c_phi    = cos(phi);
-      double s_lam    = sin(lambda);
-      double c_lam    = cos(lambda);
-      double nu       = a_/sqrt(1.0 - e2_*s_phi*s_phi);
-      double x        = (nu + h_M)*c_phi*c_lam;
-      double y        = (nu + h_M)*c_phi*s_lam;
-      double z        = (nu*(1.0 - e2_) + h_M)*s_phi;
+      float s_phi    = sin(phi);
+      float c_phi    = cos(phi);
+      float s_lam    = sin(lambda);
+      float c_lam    = cos(lambda);
+      float nu       = a_/sqrt(1.0 - e2_*s_phi*s_phi);
+      float x        = (nu + h_M)*c_phi*c_lam;
+      float y        = (nu + h_M)*c_phi*s_lam;
+      float z        = (nu*(1.0 - e2_) + h_M)*s_phi;
 
       // Find the difference between the point x, y, z to the reference point in ECEF
-      double dx       = x - xr_;
-      double dy       = y - yr_;
-      double dz       = z - zr_;
+      float dx       = x - xr_;
+      float dy       = y - yr_;
+      float dz       = z - zr_;
 
       N               = R_[0][0]*dx + R_[0][1]*dy + R_[0][2]*dz;
       E               = R_[1][0]*dx + R_[1][1]*dy + R_[1][2]*dz;
       D               = R_[2][0]*dx + R_[2][1]*dy + R_[2][2]*dz;
     }
-    void ned2gps(double N, double E, double D, double& lat_N, double& lon_E, double& h_M)
+    void ned2gps(float N, float E, float D, float& lat_N, float& lon_E, float& h_M)
     {
       // Convert from NED to ECEF
-      double dx       = R_[0][0]*N + R_[1][0]*E + R_[2][0]*D;
-      double dy       = R_[0][1]*N + R_[1][1]*E + R_[2][1]*D;
-      double dz       = R_[0][2]*N + R_[1][2]*E + R_[2][2]*D;
-      double x        = dx + xr_;
-      double y        = dy + yr_;
-      double z        = dz + zr_;
+      float dx       = R_[0][0]*N + R_[1][0]*E + R_[2][0]*D;
+      float dy       = R_[0][1]*N + R_[1][1]*E + R_[2][1]*D;
+      float dz       = R_[0][2]*N + R_[1][2]*E + R_[2][2]*D;
+      float x        = dx + xr_;
+      float y        = dy + yr_;
+      float z        = dz + zr_;
 
       // Convert from ECEF to GPS
-      double p        = sqrt(x*x + y*y);
-      double q        = atan2(z*a_, p*b_);
-      double phi      = atan2(z + epsilon_*b_*pow(sin(q),3.0),p - e2_*a_*pow(cos(q),3.0));
-      double lambda   = atan2(y,x);
-      double nu       = a_/sqrt(1.0 - e2_*sin(phi)*sin(phi));
+      float p        = sqrt(x*x + y*y);
+      float q        = atan2(z*a_, p*b_);
+      float phi      = atan2(z + epsilon_*b_*pow(sin(q),3.0),p - e2_*a_*pow(cos(q),3.0));
+      float lambda   = atan2(y,x);
+      float nu       = a_/sqrt(1.0 - e2_*sin(phi)*sin(phi));
 
       h_M             = p/cos(phi) - nu;
       lat_N           = phi/piD180_;

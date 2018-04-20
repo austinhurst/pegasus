@@ -8,6 +8,7 @@
 #include <pegasus/VehicleState.h>
 #include <pegasus/state_struct.h>
 #include <pegasus/motor_struct.h>
+#include <pegasus/gps_struct.h>
 #include <pegasus/Sonar.h>
 #include <pegasus/GPS.h>
 #include <pegasus/Barometer.h>
@@ -31,43 +32,68 @@ private:
   ros::Subscriber barometer_subscriber_;
   ros::Subscriber imu_subscriber_;
 
-  ros::Subscriber truth_subscriber_;  // Only used in simulation when use_truth is true
-
 protected:
   ros::Publisher state_hat_publisher_;
 
   //******************** CLASS VARIABLES *******************//
+  float g_;
+  float mass_;
+  float K_delta_t_;
+  float KQ_;
+  float Vb_;
+  float Kv_;
+  float Rm_;
+  float i0_;
+  float Dp_;
+  float rho_;
+  float Ap_;
+  float piD30_;
+
   pegasus::state_struct state_hat_;
   ros::Time last_time_;
 
   // Message Variables
   // motor_command variables
   motor_struct *motors_;
+  int num_motors_;
+  // Motor descriptions
+  motor_description m1d_;
+  motor_description m2d_;
+  motor_description m3d_;
+  motor_description m4d_;
+  motor_description m5d_;
+  motor_description m6d_;
+  motor_description m7d_;
+  motor_description m8d_;
+  float fx_p_;
+  float fy_p_;
+  float fz_p_;
+  float l_p_;
+  float m_p_;
+  float n_p_;
 
   // sonar variables
   float sonar_distance_;
 
   // gps variables
-  bool   gps_fix_;
-  int    gps_NumSat_;
-  double gps_latitude_;
-  double gps_longitude_;
-  double gps_altitude_;
-  double gps_speed_;
-  double gps_ground_course_;
-  double gps_covariance_;
+  gps_struct gps_converter_;
+  float gps_N_;
+  float gps_E_;
+  float gps_D_;
+  bool  gps_fix_;
+  float gps_speed_;
+  float gps_ground_course_;
 
   // barometer variables
   float barometer_pressure_;
 
   // imu variables
   tf::Quaternion imu_orientation_;
-  double imu_orientation_covariance_[9];
-  double imu_angular_velocity_[3];
-  double imu_angular_velocity_covariance_[9];
-  double imu_linear_acceleration_[3];
-  double imu_linear_acceleration_covariance_[9];
-
+  float imu_orientation_covariance_[9];
+  float imu_angular_velocity_[3];
+  float imu_angular_velocity_covariance_[9];
+  float imu_linear_acceleration_[3];
+  float imu_linear_acceleration_covariance_[9];
 
 private:
   pegasus::VehicleState state_hat_msg_;
@@ -85,15 +111,16 @@ private:
   void imuCallback(const sensor_msgs::ImuConstPtr &msg);
 
 protected:
-  virtual void estimate(const ros::TimerEvent& event);
+  virtual void predict(const ros::TimerEvent& event);
+  virtual void correctBarometer();
+  virtual void correctGPS();
+  virtual void correctIMU();
   ros::Timer estimate_timer_;
-
-protected:
-  void truthCallback(const VehicleStateConstPtr &msg);            // Only used in simulation when use_truth is true
-
   //********************** FUNCTIONS ***********************//
-
-
+private:
+  void initializeMotor(std::string i, pegasus::motor_description *md);
+protected:
+  void getF();
 };// end class Estimator
 } // end namespace pegasus
 

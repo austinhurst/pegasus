@@ -62,6 +62,7 @@ private:
   void addUncertainty(float* var);
 protected:
   virtual pegasus::state_struct derivative(pegasus::state_struct state);
+  virtual pegasus::state_struct addRedundantStates(pegasus::state_struct s);
 
 };// end class EquationsOfMotion
 } // end namespace pegasus_sim

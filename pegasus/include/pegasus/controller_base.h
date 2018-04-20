@@ -1,11 +1,7 @@
 #ifndef CONTROLLER_BASE_H
 #define CONTROLLER_BASE_H
 
-#include <iostream>
-#include <fstream>
-
-
-#include <cmath>
+#include <math.h>
 #include <map>
 #include <string>
 #include <ros/ros.h>
@@ -134,6 +130,7 @@ protected:
   void getRosParam(std::string parameter_name,      int    &param);
   void getRosParam(std::string parameter_name,      float  &param);
   void getRosParam(std::string parameter_name,      double &param);
+  void getRosParam(std::string parameter_name,      bool   &param);
   void getRosParam(std::string parameter_name, std::string &param);
 
 };// end class Controller

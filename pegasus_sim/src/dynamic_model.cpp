@@ -72,4 +72,16 @@ pegasus::state_struct DynamicModel::derivative(pegasus::state_struct s)
 
   return derivative_of;
 }
+pegasus::state_struct DynamicModel::addRedundantStates(pegasus::state_struct s)
+{
+  float c_phi   = cosf(s.phi);
+  float s_phi   = sinf(s.phi);
+  float c_theta = cosf(s.theta);
+  float s_theta = sinf(s.theta);
+
+  // Rotate u, v, w into vehicle-1 frame
+  s.u1 =  c_theta*s.u + s_theta*s_phi*s.v + s_theta*c_phi*s.w;
+  s.v1 =                        c_phi*s.v -         s_phi*s.w;
+  return s;
+}
 } // end namespace pegasus_sim

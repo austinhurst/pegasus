@@ -23,6 +23,9 @@ namespace pegasus
     float q;         // Pitch rate around j^(body)
     float r;         // Yaw rate around k^(body)
 
+    float u1;        // velocity in the i^(vehicle-1) direction
+    float v1;        // velocity in the j^(vehicle-1) direction
+
   private:
     VehicleState _msg_;
   public:
@@ -40,6 +43,9 @@ namespace pegasus
       p     = 0.0f;
       q     = 0.0f;
       r     = 0.0f;
+
+      u1    = 0.0f;
+      v1    = 0.0f;
     }
     //****************** OPERATOR FUNCTIONS ******************//
     state_struct operator+(const state_struct s)

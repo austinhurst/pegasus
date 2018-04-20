@@ -185,7 +185,7 @@ void FlatMomentum::getForcesAndMoments(pegasus::state_struct s,
     P_shaft = Qm*omega*piD30_;
 
     // Momentum Theory
-    T = pow(P_shaft*P_shaft*2.0f*rho_*Ap_, 1.0f/3.0f);
+    T = powf(P_shaft*P_shaft*2.0f*rho_*Ap_, 1.0f/3.0f);
     Q = T/6.30f*md->dir;
 
     // Put the Forces and Torques into the correct orientation

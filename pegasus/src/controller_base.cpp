@@ -11,13 +11,24 @@ Controller::Controller() :
   piD180_ = M_PI/180.0f;
   //********************** PARAMETERS **********************//
   float control_rate, aux_rate;
+  bool simulating, use_truth;
   getRosParam("control_rate", control_rate);
   getRosParam("vehicle_description/num_motors", num_motors_);
   getRosParam("rx/aux_rate", aux_rate);
+  getRosParam("est/use_truth", use_truth);
+  getRosParam("/simulating", simulating);
   pullParameters();
 
   //************** SUBSCRIBERS AND PUBLISHERS **************//
-  vehicle_state_subscriber_ = nh_.subscribe("state_hat",1,&Controller::vehicleStateCallback, this);
+  if (use_truth && !simulating)
+  {
+    use_truth = false;
+    ROS_WARN("IF NOT SIMULATING, TRUTH IS NOT ACCESSIBLE: use_truth = false");
+  }
+  if (simulating && use_truth)
+    vehicle_state_subscriber_ = nh_.subscribe("/pegasus_sim/truth",1,&Controller::vehicleStateCallback, this);
+  else
+    vehicle_state_subscriber_ = nh_.subscribe("state_hat",1,&Controller::vehicleStateCallback, this);
   rx_subscriber_ = nh_.subscribe("/rosflight/rc_raw",1,&Controller::rxCallback, this);
 
   if (num_motors_ == 2)
@@ -500,6 +511,11 @@ void Controller::getRosParam(std::string parameter_name, float &param)
     ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
 }
 void Controller::getRosParam(std::string parameter_name, double &param)
+{
+  if (!(ros::param::get(parameter_name ,param)))
+    ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());
+}
+void Controller::getRosParam(std::string parameter_name, bool &param)
 {
   if (!(ros::param::get(parameter_name ,param)))
     ROS_WARN("%s",("No param named '" + parameter_name + "'").c_str());

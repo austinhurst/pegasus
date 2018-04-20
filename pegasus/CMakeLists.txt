@@ -172,7 +172,7 @@ target_link_libraries(controller
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(estimator
   src/estimator_base.cpp
-  src/luenberger_observer.cpp
+  src/kalman_filter.cpp
 )
 
 ## Rename C++ executable without prefix

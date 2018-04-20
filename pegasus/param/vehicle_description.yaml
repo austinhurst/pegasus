@@ -68,7 +68,7 @@ vehicle_description:
     sonar:
       sonar_rate: 20.0            # update rate (Hz)
     gps:
-      gps_rate: 1.0               # update rate (Hz)
+      gps_rate: 1.0               # update rate (Hz) // TODO this could be 10, but sigma_* and k_GPS needs to change
       sigma_gps_n: 2.1            # GPS standard deviation in the north direction (meters)
       sigma_gps_e: 2.1            # GPS standard deviation in the north direction (meters)
       sigma_gps_h: 4.0            # GPS standard deviation in the height direction (meters)

@@ -12,7 +12,7 @@ SimSensors::SimSensors() :
   // Simulation Parameters
   bool use_sonar, use_gps, use_imu, use_barometer;
   float sonar_rate, gps_rate, imu_rate, barometer_rate;
-  double latitudeN0, longitudeE0, heightM0;
+  float latitudeN0, longitudeE0, heightM0;
   std::string forces_model_type;
   if (!(ros::param::get("/pegasus/vehicle_description/sensors/use_sonar",use_sonar)))
     ROS_WARN("No param named 'use_sonar'");
@@ -93,7 +93,7 @@ float SimSensors::norm_rnd(float mu, float sigma)
 {
   float U = rnd();
   float V = rnd();
-  return sqrtf(-2.0f*log(U))*cosf(2.0f*M_PI*V)*sigma + mu;
+  return sqrtf(-2.0f*logf(U))*cosf(2.0f*M_PI*V)*sigma + mu;
 }
 void SimSensors::sendSonar(const ros::TimerEvent& event)
 {

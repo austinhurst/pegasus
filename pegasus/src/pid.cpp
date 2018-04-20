@@ -89,22 +89,20 @@ void PID::control(const ros::TimerEvent& event)
     float u1_d    =  Vn_d*c_psi + Ve_d*s_psi;
     float v1_d    = -Vn_d*s_psi + Ve_d*c_psi;
 
-    // Rotate u, v, w into vehicle-1 frame
-    float u1 =  c_theta*state_.u + s_theta*s_phi*state_.v + s_theta*c_phi*state_.w;
-    float v1 =                             c_phi*state_.v -         s_phi*state_.w;
-    float w1 = -s_theta*state_.u + c_theta*s_phi*state_.v + c_theta*c_phi*state_.w;
+    // Alternative if Vg and chi are available is to find u1 and v1 from Vg and chi
+
     float a1, a2, a3;
     float e_u1, e_v1, e_w1;
     float a1_max, a2_max;
 
     // U1 - PD CONTROL
-    e_u1 = u1_d - u1;
-    u1d_ = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*u1d_ + (2.0f/(2.0f*sigma_ + ts_))*(u1 - u1_last_);
+    e_u1 = u1_d - state_.u1;
+    u1d_ = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*u1d_ + (2.0f/(2.0f*sigma_ + ts_))*(state_.u1 - u1_last_);
     a1   = kP_v1_*e_u1 - kD_v1_*u1d_;
 
     // V1 - PD CONTROL
-    e_v1 = v1_d - v1;
-    v1d_ = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*v1d_ + (2.0f/(2.0f*sigma_ + ts_))*(v1 - v1_last_);
+    e_v1 = v1_d - state_.v1;
+    v1d_ = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*v1d_ + (2.0f/(2.0f*sigma_ + ts_))*(state_.v1 - v1_last_);
     a2   = kP_v1_*e_v1 - kD_v1_*v1d_;
 
     a2_max         = F*sin_max_tilt_/mass_;
@@ -114,8 +112,8 @@ void PID::control(const ros::TimerEvent& event)
     a1             = saturate(a1,-a1_max, a1_max);
     pitch_desired_ = asinf(-a1*mass_/(F*cosf(roll_desired_)));
 
-    u1_last_   =  u1;
-    v1_last_   =  v1;
+    u1_last_   =  state_.u1;
+    v1_last_   =  state_.v1;
     h_last_    = -state_.pd;
 
     // then fall through to the manual controls
