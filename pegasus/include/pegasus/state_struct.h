@@ -97,6 +97,8 @@ namespace pegasus
       _msg_.p     = p;
       _msg_.q     = q;
       _msg_.r     = r;
+      _msg_.u1    = u1;
+      _msg_.v1    = v1;
       return _msg_;
     }
     void msg2struct(const VehicleState msg_in)
@@ -113,6 +115,8 @@ namespace pegasus
       p     = msg_in.p;
       q     = msg_in.q;
       r     = msg_in.r;
+      u1    = msg_in.u1;
+      v1    = msg_in.v1;
     }
     void msg2struct(const VehicleStateConstPtr &msg_in)
     {
@@ -128,6 +132,8 @@ namespace pegasus
       p     = msg_in->p;
       q     = msg_in->q;
       r     = msg_in->r;
+      u1    = msg_in->u1;
+      v1    = msg_in->v1;
     }
   };
 } // end namespace pegasus

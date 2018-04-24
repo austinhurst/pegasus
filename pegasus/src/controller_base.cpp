@@ -15,7 +15,7 @@ Controller::Controller() :
   getRosParam("control_rate", control_rate);
   getRosParam("vehicle_description/num_motors", num_motors_);
   getRosParam("rx/aux_rate", aux_rate);
-  getRosParam("est/use_truth", use_truth);
+  getRosParam("use_truth", use_truth);
   getRosParam("/simulating", simulating);
   pullParameters();
 

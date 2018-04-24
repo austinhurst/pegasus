@@ -1,4 +1,4 @@
-# This contains the full state of the air vehicle. More fields to be added later
+# This contains the full state of the air vehicle.
 float32 pn        # Inertial North position
 float32 pe        # Inertial East position
 float32 pd        # Inertial Down position
@@ -11,3 +11,6 @@ float32 psi       # Yaw, angle rotated around k^(vehicle)
 float32 p         # Roll rate around i^(body)
 float32 q         # Pitch rate around j^(body)
 float32 r         # Yaw rate around k^(body)
+
+float32 u1        # Vehicle 1 frame velocity along i^(vehicle-1)
+float32 v1        # Vehicle 1 frame velocity along j^(vehicle-1)

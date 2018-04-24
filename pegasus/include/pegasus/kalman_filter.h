@@ -44,6 +44,10 @@ private:
   float Q_[NUM_STATES][NUM_STATES];
   float K_[NUM_STATES];
 
+  float RVg_;
+  float Rchi_;
+  float Racc_;
+
   ros::Time gyro_last_time_;
   LPF gyro_p_;
   LPF gyro_q_;
