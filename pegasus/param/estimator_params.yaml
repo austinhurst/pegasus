@@ -8,11 +8,11 @@ est:
     q_cutoff_freq: 175.929   # cutoff frequency for y axis gyroscope
     r_cutoff_freq: 175.929   # cutoff frequency for z axis gyroscope
     baro_cutoff_freq: 3.2831 # cutoff frequency for barometer
-    RVg: 0.075               # GPS Vg variance
-    Rchi: 0.1                # GPS chi variance
+    RVg: 0.005625            # GPS Vg variance
+    Rchi: 0.1                # GPS chi variance NO USED
     Racc: 0.0006             # Accelerometer variance
     Q1: 0.000000001
     Q2: 0.000000001
     Q3: 0.000000001
-    Q4: 0.000000001
-    Q5: 0.000000001
+    Q4: 0.00001            # 0.0000001
+    Q5: 0.0001

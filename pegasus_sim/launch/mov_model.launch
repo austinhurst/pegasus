@@ -27,7 +27,7 @@
     <node name="wind" pkg="pegasus_sim" type="wind" output="screen"                  />
   </group>
 
-  <node name="pitch_plotter"
+  <!-- <node name="pitch_plotter"
       pkg="rqt_plot"
       type="rqt_plot"
       args="/pegasus_sim/truth/theta /pegasus/desired_command/pitch_desired /pegasus/state_hat/theta" />
@@ -40,7 +40,7 @@
   <node name="yaw_plotter"
       pkg="rqt_plot"
       type="rqt_plot"
-      args="/pegasus_sim/truth/psi /pegasus/state_hat/psi" />
+      args="/pegasus_sim/truth/psi /pegasus/state_hat/psi" /> -->
 
   <node name="u1_plotter"
       pkg="rqt_plot"

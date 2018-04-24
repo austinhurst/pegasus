@@ -68,11 +68,22 @@ void KalmanFilter::predict(const ros::TimerEvent& event)
 
   float phi, theta, psi, u1, v1;
   float s_phi, c_phi, t_theta, sec_theta, s_theta, c_theta;
+  phi   = xhat_[0];
+  theta = xhat_[1];
+  psi   = xhat_[2];
+  u1    = xhat_[3];
+  v1    = xhat_[4];
+  c_phi     = cosf(phi);
+  s_phi     = sinf(phi);
+  t_theta   = tanf(theta);
+  sec_theta = 1.0f/cosf(theta);
+  s_theta   = sinf(theta);
+  c_theta   = cosf(theta);
+
   float p = state_hat_.p;
   float q = state_hat_.q;
   float r = state_hat_.r;
-  getF();
-  float az = fz_p_/mass_;
+  float ax, ay, az;
   for (int i = 0; i < N_; i++)
   {
     phi   = xhat_[0];
@@ -83,15 +94,19 @@ void KalmanFilter::predict(const ros::TimerEvent& event)
     c_phi     = cosf(phi);
     s_phi     = sinf(phi);
     t_theta   = tanf(theta);
-    sec_theta = 1.0f/cos(theta);
+    sec_theta = 1.0f/cosf(theta);
     s_theta   = sinf(theta);
-
+    c_theta   = cosf(theta);
+    getF();
+    az = fz_p_/mass_ + c_theta*c_phi*g_;
+    ay = fy_p_/mass_ + c_theta*s_phi*g_;
+    ax = fx_p_/mass_ - s_theta*g_;
 
     f_[0] = p +   s_phi*t_theta*q +   c_phi*t_theta*r;
     f_[1] =               c_phi*q -           s_phi*r;
     f_[2] =     s_phi*sec_theta*q + c_phi*sec_theta*r;
-    f_[3] = c_phi*s_theta*az;  // TODO this model assumes the only force is by propulsion and in the (-)Z direction
-    f_[4] = -s_phi*az;
+    f_[3] = c_theta*ax + s_theta*s_phi*ay + s_theta*c_phi*az;
+    f_[4] =                      c_phi*ay -         s_phi*az;
 
     // xhat_ = xhat_ + ts/N*f;
     for (int i = 0; i < NUM_STATES; i++)
@@ -108,6 +123,10 @@ void KalmanFilter::predict(const ros::TimerEvent& event)
     sec_theta = 1.0f/cos(theta);
     s_theta   = sinf(theta);
     c_theta   = cosf(theta);
+    getF();
+    az = fz_p_/mass_ + c_theta*c_phi*g_;
+    ay = fy_p_/mass_ + c_theta*s_phi*g_;
+    ax = fx_p_/mass_ - s_theta*g_;
 
     // A_ = df/dx
     A_[0][0] = c_phi*t_theta*q - s_phi*t_theta*r;
@@ -125,13 +144,13 @@ void KalmanFilter::predict(const ros::TimerEvent& event)
     A_[2][2] = 0.0f;
     A_[2][3] = 0.0f;
     A_[2][4] = 0.0f;
-    A_[3][0] = -s_phi*s_theta*az;
-    A_[3][1] = c_phi*c_theta*az;
+    A_[3][0] = s_theta*c_phi*ay - s_theta*s_phi*az;
+    A_[3][1] = -s_theta*ax + c_theta*s_phi*ay + c_theta*c_phi*az;
     A_[3][2] = 0.0f;
     A_[3][3] = 0.0f;
     A_[3][4] = 0.0f;
-    A_[4][0] = -c_phi*az;
-    A_[4][1] = 0.0;
+    A_[4][0] = -s_phi*ay - c_phi*az;
+    A_[4][1] = 0.0f;
     A_[4][2] = 0.0f;
     A_[4][3] = 0.0f;
     A_[4][4] = 0.0f;
@@ -186,151 +205,183 @@ void KalmanFilter::correctBarometer()
   // xhat_ = xhat_ + K_*(Sax - h_);
 
   // Pull in xhat variables into state_hat_
+  state_hat_.pd = -h;
   state_hat_publisher_.publish(state_hat_.msg());
 }
 void KalmanFilter::correctGPS()
 {
-  // // Measurements
-  // // gps_N_, gps_E_, gps_D_, gps_speed_, gps_ground_course_;
-  // float psi, u1, v1;
-  // float s_psi, c_psi;
-  // psi        = xhat_[2];
-  // u1         = xhat_[3];
-  // v1         = xhat_[4];
-  // c_psi      = cosf(psi);
-  // s_psi      = sinf(psi);
-  // float hVg  = sqrtf(u1*u1 + v1*v1);
-  // float hchi = atan2f(u1*s_psi + v1*c_psi, u1*c_psi - v1*s_psi);
-  // float Vg_correction  = gps_speed_ - hVg;
-  // float chi_correction = gps_ground_course_ - hchi;
-  // // can't allow chi_correction to become huge, fmod?
-  //
-  // float C[NUM_STATES]; // dh/dx for Vg
-  // C[0] = 0.0f;
-  // C[1] = 0.0f;
-  // C[2] = 0.0f;
-  // C[3] = u1/sqrtf(u1*u1 + v1*v1);
-  // C[4] = v1/sqrtf(u1*u1 + v1*v1);
-  // // K_    = P_*C_.'*inv(R_ + C_*P_*C_.');
-  // float PCt[NUM_STATES];
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   float pc = 0.0f;
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //     pc += P_[i][j]*C[j];
-  //   PCt[i] = pc;
-  // }
-  // float R_p_CPCt = RVg_; // *****************
-  // for (int i = 0; i < NUM_STATES; i++)
-  //   R_p_CPCt += C[i]*PCt[i];
-  //
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   float ki = 0.0f;
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //     ki += P_[i][j]*C[j];
-  //   K_[i] = ki/R_p_CPCt;
-  // }
-  //
-  // // P_    = (eye(5) - K_*C_)*P_;
-  // float ImKC[NUM_STATES][NUM_STATES];
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //   {
-  //     if (i == j)
-  //     {
-  //       ImKC[i][j] = 1.0f - K_[i]*C[j];
-  //     }
-  //     else
-  //     {
-  //       ImKC[i][j] = 0.0f - K_[i]*C[j];
-  //     }
-  //   }
-  // }
-  // float P2[NUM_STATES][NUM_STATES];
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //   {
-  //     float ImKCP  = 0.0f;
-  //     for (int k = 0; k < NUM_STATES; k++)
-  //     {
-  //       ImKCP  += ImKC[i][k]*P_[k][j];
-  //     }
-  //     P2[i][j] = ImKCP;
-  //   }
-  // }
-  // P_ = P2;
-  // for (int i = 0; i < NUM_STATES; i++)
-  //   xhat_[i] += K_[i]*Vg_correction;
-  //
-  // C[0] = 0.0f; // dh/dx for chi
-  // C[1] = 0.0f;
-  // C[2] = 1.0f/(1.0f + powf(((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi)),2.0f))*((u1*c_psi - v1*s_psi)*(u1*c_psi - \
-  //        v1*s_psi) - (-u1*s_psi - v1*c_psi)*(u1*s_psi + v1*c_psi))/powf(u1*c_psi - v1*s_psi, 2.0f);
-  // C[3] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi), 2.0f))*(s_psi*(u1*c_psi - v1*s_psi)\
-  //        - c_psi*(u1*s_psi + v1*c_psi))/powf(u1*c_psi - v1*s_psi, 2.0f);
-  // C[4] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi), 2.0f))*(c_psi*(u1*c_psi - v1*s_psi)\
-  //        - (-s_psi)*(u1*s_psi + v1*c_psi))/powf(u1*c_psi - v1*s_psi, 2.0f);
-  //
-  // // K_    = P_*C_.'*inv(R_ + C_*P_*C_.');
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   float pc = 0.0f;
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //     pc += P_[i][j]*C[j];
-  //   PCt[i] = pc;
-  // }
-  // R_p_CPCt = Rchi_; // *****************
-  // for (int i = 0; i < NUM_STATES; i++)
-  //   R_p_CPCt += C[i]*PCt[i];
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   float ki = 0.0f;
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //     ki += P_[i][j]*C[j];
-  //   K_[i] = ki/R_p_CPCt;
-  // }
-  // // P_    = (eye(5) - K_*C_)*P_;
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //   {
-  //     if (i == j)
-  //     {
-  //       ImKC[i][j] = 1.0f - K_[i]*C[j];
-  //     }
-  //     else
-  //     {
-  //       ImKC[i][j] = 0.0f - K_[i]*C[j];
-  //     }
-  //   }
-  // }
-  // for (int i = 0; i < NUM_STATES; i++)
-  // {
-  //   for (int j = 0; j < NUM_STATES; j++)
-  //   {
-  //     float ImKCP  = 0.0f;
-  //     for (int k = 0; k < NUM_STATES; k++)
-  //     {
-  //       ImKCP  += ImKC[i][k]*P_[k][j];
-  //     }
-  //     P2[i][j] = ImKCP;
-  //   }
-  // }
-  // P_ = P2;
-  // // for (int i = 0; i < NUM_STATES; i++)
-  // //   xhat_[i] += K_[i]*chi_correction;
-  //
-  //
-  // // Pull in xhat variables into state_hat_
-  // state_hat_.phi   = xhat_[0];
-  // state_hat_.theta = xhat_[1];
-  // state_hat_.psi   = xhat_[2];
-  // state_hat_.u1    = xhat_[3];
-  // state_hat_.v1    = xhat_[4];
-  // state_hat_publisher_.publish(state_hat_.msg());
+  // Measurements
+  // gps_N_, gps_E_, gps_D_, gps_speed_, gps_ground_course_;
+  float psi, u1, v1;
+  float s_psi, c_psi;
+  psi        = xhat_[2];
+  u1         = xhat_[3];
+  v1         = xhat_[4];
+  c_psi      = cosf(psi);
+  s_psi      = sinf(psi);
+  float hVg  = sqrtf(u1*u1 + v1*v1);
+  float hchi = atan2f(u1*s_psi + v1*c_psi, u1*c_psi - v1*s_psi);
+  float Vg_correction  = gps_speed_ - hVg;
+  float chi_correction = gps_ground_course_ - hchi;
+  // can't allow chi_correction to become huge, fmod?
+
+  float C[NUM_STATES]; // dh/dx for Vg
+  C[0] = 0.0f;
+  C[1] = 0.0f;
+  C[2] = 0.0f;
+  if (sqrtf(u1*u1 + v1*v1) > 0.001)
+  {
+    C[3] = u1/sqrtf(u1*u1 + v1*v1);
+    C[4] = v1/sqrtf(u1*u1 + v1*v1);
+  }
+  else
+  {
+    C[3] = 0.0f;
+    C[4] = 0.0f;
+  }
+  // K_    = P_*C_.'*inv(R_ + C_*P_*C_.');
+  float PCt[NUM_STATES];
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    float pc = 0.0f;
+    for (int j = 0; j < NUM_STATES; j++)
+      pc += P_[i][j]*C[j];
+    PCt[i] = pc;
+  }
+  float R_p_CPCt = RVg_; // *****************
+  for (int i = 0; i < NUM_STATES; i++)
+    R_p_CPCt += C[i]*PCt[i];
+
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    float ki = 0.0f;
+    for (int j = 0; j < NUM_STATES; j++)
+      ki += P_[i][j]*C[j];
+    K_[i] = ki/R_p_CPCt;
+  }
+
+  // P_    = (eye(5) - K_*C_)*P_;
+  float ImKC[NUM_STATES][NUM_STATES];
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    for (int j = 0; j < NUM_STATES; j++)
+    {
+      if (i == j)
+      {
+        ImKC[i][j] = 1.0f - K_[i]*C[j];
+      }
+      else
+      {
+        ImKC[i][j] = 0.0f - K_[i]*C[j];
+      }
+    }
+  }
+  float P2[NUM_STATES][NUM_STATES];
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    for (int j = 0; j < NUM_STATES; j++)
+    {
+      float ImKCP  = 0.0f;
+      for (int k = 0; k < NUM_STATES; k++)
+      {
+        ImKCP  += ImKC[i][k]*P_[k][j];
+      }
+      P2[i][j] = ImKCP;
+    }
+  }
+  for (int i = 0; i < NUM_STATES; i++)
+    for (int j = 0; j < NUM_STATES; j++)
+      P_[i][j] = P2[i][j];
+
+  for (int i = 0; i < NUM_STATES; i++)
+    xhat_[i] += K_[i]*Vg_correction;
+
+  C[0] = 0.0f; // dh/dx for chi
+  C[1] = 0.0f;
+  if (u1*c_psi - v1*s_psi > 0.001f)
+  {
+    C[2] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi), 2.0f))*\
+           ((u1*c_psi - v1*s_psi)*(u1*c_psi - v1*s_psi) - (-u1*s_psi -v1*c_psi)*(u1*s_psi + v1*c_psi))/\
+           powf(u1*c_psi - v1*s_psi, 2.0f);
+    C[3] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi), 2.0f))*\
+           (s_psi*(u1*c_psi - v1*s_psi) - c_psi*(u1*s_psi + v1*c_psi))/powf(u1*c_psi - v1*s_psi, 2.0f);
+    C[4] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/(u1*c_psi - v1*s_psi), 2.0f))*\
+           (c_psi*(u1*c_psi - v1*s_psi) - (-s_psi)*(u1*s_psi + v1*c_psi))/powf(u1*c_psi - v1*s_psi, 2.0f);
+  }
+  else
+  {
+    C[2] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/0.001f, 2.0f))*\
+           ((u1*c_psi - v1*s_psi)*(u1*c_psi - v1*s_psi) - (-u1*s_psi -v1*c_psi)*(u1*s_psi + v1*c_psi))/\
+           0.001f;
+    C[3] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/0.001f, 2.0f))*\
+           (s_psi*(u1*c_psi - v1*s_psi) - c_psi*(u1*s_psi + v1*c_psi))/0.001f;
+    C[4] = 1.0f/(1.0f + powf((u1*s_psi + v1*c_psi)/0.001f, 2.0f))*\
+           (c_psi*(u1*c_psi - v1*s_psi) - (-s_psi)*(u1*s_psi + v1*c_psi))/0.001f;
+  }
+
+  // K_    = P_*C_.'*inv(R_ + C_*P_*C_.');
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    float pc = 0.0f;
+    for (int j = 0; j < NUM_STATES; j++)
+      pc += P_[i][j]*C[j];
+    PCt[i] = pc;
+  }
+  float  Vg2 = (u1*u1 + v1*v1);
+  if (Vg2 < 0.0000001f)
+    R_p_CPCt = RVg_/0.0000001f;
+  else
+    R_p_CPCt = RVg_/(u1*u1 + v1*v1); // *****************
+  for (int i = 0; i < NUM_STATES; i++)
+    R_p_CPCt += C[i]*PCt[i];
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    float ki = 0.0f;
+    for (int j = 0; j < NUM_STATES; j++)
+      ki += P_[i][j]*C[j];
+    K_[i] = ki/R_p_CPCt;
+  }
+  // P_    = (eye(5) - K_*C_)*P_;
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    for (int j = 0; j < NUM_STATES; j++)
+    {
+      if (i == j)
+      {
+        ImKC[i][j] = 1.0f - K_[i]*C[j];
+      }
+      else
+      {
+        ImKC[i][j] = 0.0f - K_[i]*C[j];
+      }
+    }
+  }
+  for (int i = 0; i < NUM_STATES; i++)
+  {
+    for (int j = 0; j < NUM_STATES; j++)
+    {
+      float ImKCP  = 0.0f;
+      for (int k = 0; k < NUM_STATES; k++)
+      {
+        ImKCP  += ImKC[i][k]*P_[k][j];
+      }
+      P2[i][j] = ImKCP;
+    }
+  }
+  for (int i = 0; i < NUM_STATES; i++)
+    for (int j = 0; j < NUM_STATES; j++)
+      P_[i][j] = P2[i][j];
+  for (int i = 0; i < NUM_STATES; i++)
+    xhat_[i] += K_[i]*chi_correction;
+
+
+  // Pull in xhat variables into state_hat_
+  state_hat_.phi   = xhat_[0];
+  state_hat_.theta = xhat_[1];
+  state_hat_.psi   = xhat_[2];
+  state_hat_.u1    = xhat_[3];
+  state_hat_.v1    = xhat_[4];
+  state_hat_publisher_.publish(state_hat_.msg());
 }
 void KalmanFilter::correctIMU()
 {
