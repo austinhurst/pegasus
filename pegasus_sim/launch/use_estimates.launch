@@ -10,7 +10,7 @@
   </group>
 
   <group ns="pegasus">
-    <param name="use_truth" type="bool" value="false"                                />
+    <param name="use_truth" type="bool" value="false" />
     <rosparam command="load" file="$(find pegasus)/param/vehicle_description.yaml"   />
     <rosparam command="load" file="$(find pegasus)/param/controller_params.yaml"     />
     <rosparam command="load" file="$(find pegasus)/param/estimator_params.yaml"      />
@@ -27,30 +27,6 @@
     <node name="sensors" pkg="pegasus_sim" type="sensors" output="screen"            />
     <node name="wind" pkg="pegasus_sim" type="wind" output="screen"                  />
   </group>
-
-  <node name="pitch_plotter"
-      pkg="rqt_plot"
-      type="rqt_plot"
-      args="/pegasus_sim/truth/theta /pegasus/state_hat/theta" />
-
-  <node name="roll_plotter"
-      pkg="rqt_plot"
-      type="rqt_plot"
-      args="/pegasus_sim/truth/phi /pegasus/state_hat/phi"    />
-
-  <node name="yaw_plotter"
-      pkg="rqt_plot"
-      type="rqt_plot"
-      args="/pegasus_sim/truth/psi /pegasus/state_hat/psi" />
-
-  <node name="u1_plotter"
-      pkg="rqt_plot"
-      type="rqt_plot"
-      args="/pegasus_sim/truth/u1 /pegasus/state_hat/u1" />
-  <node name="v1_plotter"
-      pkg="rqt_plot"
-      type="rqt_plot"
-      args="/pegasus_sim/truth/v1 /pegasus/state_hat/v1" />
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pegasus_sim)/viz/qcopter.rviz" required="true"/>
 </launch>

@@ -57,6 +57,13 @@ void PID::control(const ros::TimerEvent& event)
   float F;
   if (flight_mode_ == VELOC_MODE)
   {
+    float c_phi   = cosf(state_.phi);
+    float s_phi   = sinf(state_.phi);
+    float c_theta = cosf(state_.theta);
+    float s_theta = sinf(state_.theta);
+    float c_psi   = cosf(state_.psi);
+    float s_psi   = sinf(state_.psi);
+
     // HEIGHT - PID CONTROL
     float e_height = H_desired_ - (-state_.pd);
     bool saturated = false;
@@ -74,16 +81,10 @@ void PID::control(const ros::TimerEvent& event)
     h_integration_ = h_integration_ + ts_/2.0*(e_height + e_height_last_);
     if (saturated)
       h_integration_ = 0.0f;
-    F = saturate(kP_h_*e_height - kD_h_*hd_ + kI_h_*h_integration_ + Fe_, min_thrust_, max_thrust_);
+    F = saturate((kP_h_*e_height - kD_h_*hd_ + kI_h_*h_integration_ + Fe_)/(c_theta*c_phi), min_thrust_, max_thrust_);
     e_height_last_ = e_height;
 
     // Turn Vg_desired and chi_desired into the vehicle-1 frame, u1_desired and v1_desired, w1_desired // rotation
-    float c_phi   = cosf(state_.phi);
-    float s_phi   = sinf(state_.phi);
-    float c_theta = cosf(state_.theta);
-    float s_theta = sinf(state_.theta);
-    float c_psi   = cosf(state_.psi);
-    float s_psi   = sinf(state_.psi);
     float Vn_d    =  Vg_desired_*cosf(chi_desired_);
     float Ve_d    =  Vg_desired_*sinf(chi_desired_);
     float u1_d    =  Vn_d*c_psi + Ve_d*s_psi;

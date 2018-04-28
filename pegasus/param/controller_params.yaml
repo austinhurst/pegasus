@@ -1,7 +1,4 @@
 # Parameters for the controller
-use_truth: false        # control off of truth
-
-
 control_rate: 300       # The rate the controller runs at (Hz)
 
 control_type: PID       # Type of Controller
