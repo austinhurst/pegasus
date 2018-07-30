@@ -8,35 +8,35 @@ rx:
                               # Number = Aux-Number
   aux_rate: 20.               # The rate at which the aux_channels are checked (Hz)
   aileron:
-    min_us: 1000              # Lowest signal the tx sends in microseconds.
-    mid_us: 1535              # Middle signal the tx sends in microseconds.
-    max_us: 2015              # Longest signal the tx sends in microseconds.
+    min_us: 1055             # Lowest signal the tx sends in microseconds.
+    mid_us: 1470              # Middle signal the tx sends in microseconds.
+    max_us: 1888              # Longest signal the tx sends in microseconds.
   elevator:
-    min_us:  925              # Lowest signal the tx sends in microseconds.
-    mid_us: 1396              # Middle signal the tx sends in microseconds.
-    max_us: 1912              # Longest signal the tx sends in microseconds.
+    min_us: 1051              # Lowest signal the tx sends in microseconds.
+    mid_us: 1467              # Middle signal the tx sends in microseconds.
+    max_us: 1867              # Longest signal the tx sends in microseconds.
   thrust:
-    min_us:  985              # Lowest signal the tx sends in microseconds.
-    mid_us: 1463              # Middle signal the tx sends in microseconds.
-    max_us: 1960              # Longest signal the tx sends in microseconds.
+    min_us: 1050              # Lowest signal the tx sends in microseconds.
+    mid_us: 1475              # Middle signal the tx sends in microseconds.
+    max_us: 1885              # Longest signal the tx sends in microseconds.
   rudder:
-    min_us:  925              # Lowest signal the tx sends in microseconds.
-    mid_us: 1527              # Middle signal the tx sends in microseconds.
-    max_us: 1985              # Longest signal the tx sends in microseconds.
+    min_us: 1050              # Lowest signal the tx sends in microseconds.
+    mid_us: 1471              # Middle signal the tx sends in microseconds.
+    max_us: 1875              # Longest signal the tx sends in microseconds.
 
   arming:
     arm_aux_channel: 1        # The auxilary channel used to arm and disarm the vehicle (no matter the channel mapping)
-    min_arm_us: 800           # In order for motors to spin, the 'arming/aux_channel' must send a minimum of this us.
-    max_arm_us: 1300          # In order for motors to spin, the 'arming/aux_channel' must send a maximum of this us.
-    arm_throttle_max: 1005    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
+    min_arm_us: 1750           # In order for motors to spin, the 'arming/aux_channel' must send a minimum of this us.
+    max_arm_us: 2050          # In order for motors to spin, the 'arming/aux_channel' must send a maximum of this us.
+    arm_throttle_max: 1070    # In order to arm, aux_channel must be between min_arm_us and max_arm_us and throttle must
                               # be below 'throttle_max'. SET throttle_max no more than 25 above min_us.
   modes:
     mode_aux_channel: 2       # Channel that selects the flight mode.
-    min_angle_mode: 1300      # Minimum microseconds for angle mode.
-    max_angle_mode: 2000      # Minimum microseconds for angle mode.
+    min_angle_mode: 1000      # Minimum microseconds for angle mode.
+    max_angle_mode: 1300      # Minimum microseconds for angle mode.
     min_rates_mode: 1300      # Minimum microseconds for rates mode.
-    max_rates_mode: 1300      # Minimum microseconds for rates mode.
-    min_veloc_mode: 950       # Minimum microseconds for veloc mode.
+    max_rates_mode: 2000      # Minimum microseconds for rates mode.
+    min_veloc_mode: 1300      # Minimum microseconds for veloc mode.
     max_veloc_mode: 1300      # Minimum microseconds for veloc mode.
     min_auto_us: 1300         # Minimum microseconds for autonomous takeover.
     max_auto_us: 1300         # Maximum microseconds for autonomous takeover.

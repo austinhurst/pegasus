@@ -12,6 +12,7 @@ public:
 
 private:
   virtual void control(const ros::TimerEvent& event);
+  float wrapAngle(float angle_in);
   double ts_;
   float mass_;
   float g_;
@@ -19,10 +20,18 @@ private:
   // PHI
   float kP_phi_;
   float kD_phi_;
+  float kP_p_;
+  float kD_p_;
+  float p_last_;
+  float pd_;
 
   // THETA
   float kP_theta_;
   float kD_theta_;
+  float kP_q_;
+  float kD_q_;
+  float q_last_;
+  float qd_;
 
   // PSI
   float kP_psi_;

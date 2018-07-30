@@ -16,13 +16,23 @@ PID::PID()
   getRosParam("kI_h",     kI_h_);
   getRosParam("kP_v1",    kP_v1_);
   getRosParam("kD_v1",    kD_v1_);
+
+  getRosParam("kP_p",     kP_p_);
+  getRosParam("kD_p",     kD_p_);
+  getRosParam("kP_q",     kP_q_);
+  getRosParam("kD_q",     kD_q_);
+
   getRosParam("max_tilt", max_tilt_);
   getRosParam("alt_hold", alt_hold_);
 
   getRosParam("vehicle_description/mass",mass_);
   getRosParam("vehicle_description/g",g_);
   sigma_         = 0.05;
+  p_last_        = 0.0;
+  q_last_        = 0.0;
   r_last_        = 0.0;
+  pd_            = 0.0;
+  qd_            = 0.0;
   rd_            = 0.0;
   Fe_            = mass_*g_;
   hd_            = 0.0;
@@ -53,8 +63,8 @@ void PID::control(const ros::TimerEvent& event)
   ros::Duration time_step = new_time - last_time_;
   ts_ = time_step.toSec();
 
-  // THRUST
-  float F;
+  float F, tau_phi, tau_theta, tau_psi;
+
   if (flight_mode_ == VELOC_MODE)
   {
     float c_phi   = cosf(state_.phi);
@@ -69,12 +79,12 @@ void PID::control(const ros::TimerEvent& event)
     bool saturated = false;
     if (e_height > alt_hold_)
     {
-      e_height = alt_hold_;
+      e_height  = alt_hold_;
       saturated = true;
     }
     if (e_height < -alt_hold_)
     {
-      e_height = -alt_hold_;
+      e_height  = -alt_hold_;
       saturated = true;
     }
     hd_ =  ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*hd_ + (2.0f/(2.0f*sigma_ + ts_))*(-state_.pd - h_last_);
@@ -113,27 +123,42 @@ void PID::control(const ros::TimerEvent& event)
     a1             = saturate(a1,-a1_max, a1_max);
     pitch_desired_ = asinf(-a1*mass_/(F*cosf(roll_desired_)));
 
-    u1_last_   =  state_.u1;
-    v1_last_   =  state_.v1;
-    h_last_    = -state_.pd;
+    u1_last_       =  state_.u1;
+    v1_last_       =  state_.v1;
+    h_last_        = -state_.pd;
 
     // then fall through to the manual controls
   }
   else
     F = thrust_desired_*num_motors_*K1_;
 
-  // PHI - PD CONTROL
-  float e_phi     = roll_desired_ - state_.phi;
-  float tau_phi   = kP_phi_*e_phi  - kD_phi_*state_.p;
+  // Rates Control
+  if (flight_mode_ == RATES_MODE)
+  {
+    pd_           = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*pd_ + (2.0f/(2.0f*sigma_ + ts_))*(state_.p - p_last_);
+    float e_p     = roll_rate_desired_ - state_.p;
+    tau_phi       = kP_p_*e_p  - kD_p_*pd_;
 
-  // THETA - PD CONTROL
-  float e_theta   = pitch_desired_ - state_.theta;
-  float tau_theta = kP_theta_*e_theta  - kD_theta_*state_.q;
+    qd_           = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*qd_ + (2.0f/(2.0f*sigma_ + ts_))*(state_.q - q_last_);
+    float e_q     = pitch_rate_desired_ - state_.q;
+    tau_theta     = kP_q_*e_q  - kD_q_*qd_;
+  }
+  // Angle Control
+  else
+  {
+    // PHI - PD CONTROL
+    float e_phi   = wrapAngle(roll_desired_ - state_.phi);
+    tau_phi       = kP_phi_*e_phi  - kD_phi_*state_.p;
+
+    // THETA - PD CONTROL
+    float e_theta = wrapAngle(pitch_desired_ - state_.theta);
+    tau_theta     = kP_theta_*e_theta  - kD_theta_*state_.q;
+  }
 
   // PSI - PD Control
   rd_             = ((2.0f*sigma_ - ts_)/(2.0f*sigma_ + ts_))*rd_ + (2.0f/(2.0f*sigma_ + ts_))*(state_.r - r_last_);
   float e_psi     = yaw_rate_desired_ - state_.r;
-  float tau_psi   = kP_psi_*e_psi  - kD_psi_*rd_;
+  tau_psi         = kP_psi_*e_psi  - kD_psi_*rd_;
 
   // OUTPUT
   mixMotors4(F, tau_phi, tau_theta, tau_psi);
@@ -141,8 +166,10 @@ void PID::control(const ros::TimerEvent& event)
   publishDesiredCommand();
 
   // Age Data
-  last_time_ =  new_time;
-  r_last_    =  state_.r;
+  last_time_ = new_time;
+  p_last_    = state_.p;
+  q_last_    = state_.q;
+  r_last_    = state_.r;
 }
 void PID::mixMotors4(float F, float t_phi, float t_theta, float t_psi) // TEMP
 {
@@ -159,5 +186,14 @@ float PID::saturate(float value_i, float min, float max)
 {
   float  value_o  = value_i < min ? min : value_i;
   return value_o  = value_o > max ? max : value_o;
+}
+float PID::wrapAngle(float angle_in)
+{
+  angle_in -= 2.0f*M_PI*trunc(angle_in/(2.0f*M_PI));
+  if (angle_in > M_PI)
+    return angle_in - 2.0f*M_PI;
+  if (angle_in < -M_PI)
+    return angle_in + 2.0f*M_PI;
+  return angle_in;
 }
 } // end namespace pegasus

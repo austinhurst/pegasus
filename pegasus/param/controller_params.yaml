@@ -9,8 +9,13 @@ kD_phi:   0.1058
 kP_theta: 1.9071
 kD_theta: 0.1058
 
-kP_psi:   1
+kP_psi:   1.0
 kD_psi:   0.0272
+
+kP_p:     0.25         # tr = 0.075 for 0.34 gain
+kD_p:     0.0
+kP_q:     0.26         # tr = 0.075 for 0.3666 gain
+kD_q:     0.0
 
 kP_h:     1.4832
 kD_h:     2.022
